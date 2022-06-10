@@ -1,0 +1,75 @@
+version: "3.7"
+
+networks:
+  pubplatform:
+    driver: bridge
+
+services:
+  mysql:
+    image: "mysql:5.7"
+    container_name: mysql
+    hostname: mysql
+    restart: always
+    ports:
+      - "13306:3306"
+    environment:
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_PASSWORD=1234
+    volumes:
+      - ./mysqldata:/var/lib/mysql/
+      - ./initsql:/docker-entrypoint-initdb.d/
+      - ./mysqletc/my.cnf:/etc/my.cnf
+    networks:
+      - pubplatform
+
+  redis:
+    image: "redis:6.2"
+    container_name: redis
+    hostname: redis
+    restart: always
+    ports:
+      - "16379:6379"
+    environment:
+      - TZ=Asia/Shanghai
+    networks:
+      - pubplatform
+
+  pubplatform:
+    image: leeoj2/pubplatform:1.0
+    container_name: pubplatform
+    hostname: pubplatform
+    restart: always
+    environment:
+      - GIN_MODE=release
+      - TZ=Asia/Shanghai
+      - WAIT_HOSTS=mysql:3306, redis:6379
+      - redis_addresses=redis:6379
+      - db_user=root
+      - db_password=1234
+      - db_host=mysql:3306
+      - verify_profile_url= # 认证跳转url
+      - captcha_rpc_addr= # captcha rpc server addr
+      - sms_rpc_addr= # sms rpc server addr
+      - app_id= # wx pub app id
+      - app_secret= # wx pub app secret
+    ports:
+      - "8100:80"
+    networks:
+      - pubplatform
+    depends_on:
+      - mysql
+      - redis
+    links:
+      - mysql:mysql
+      - redis:redis
+    command: >
+      /bin/bash -c '
+      while ! nc -z mysql 3306;
+      do
+       echo "wait for mysql";
+       sleep 1;
+      done;
+
+      echo "database is ready!";
+      echo "start pubplatform service here";
+      '

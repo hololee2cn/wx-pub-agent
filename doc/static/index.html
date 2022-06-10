@@ -1,0 +1,85 @@
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+  <script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js">
+  <script>
+    wx.config({
+      debug: true,
+      appId: {{ .app_id }},
+      timestamp: {{ .timestamp }},
+      nonceStr: {{ .nonce_str }},
+      signature: {{ .signature }},
+      jsApiList: {{ .js_api_list }}
+    });
+  </script>
+  <script>
+    function refresh_verify_code(){
+      console.log("refresh");
+      var ajax = new XMLHttpRequest();
+      ajax.open("GET","/api/v1/captcha",true);
+      ajax.send(null);
+      ajax.onreadystatechange = function(){
+        if (ajax.readyState==4 && ajax.status==200){
+	  console.log("request succ");
+          var resp = JSON.parse(ajax.responseText);
+          document.getElementById("img-verify-code").src=resp.captcha_base_64_value;
+	}
+      }
+    };
+    function on_click_img_verify_code(){refresh_verify_code();};
+    function on_click_send_sms_code(){
+      var verify_code = document.getElementById("txt-verify-code").value;
+      var phone_num = document.getElementById("txt-phone-number").value;
+      var ajax = new XMLHttpRequest();
+      ajax.open("POST","/api/v1/verify",true);
+      ajax.send(JSON.stringify({"verify_code":verify_code,"phone_num":phone_num}));
+      ajax.onreadystatechange = function(){
+        if (ajax.readyState==4 && ajax.status==200){
+          console.log("sms code sent");
+        }
+      }
+    };
+    function on_click_submit(){
+      var phone_num = document.getElementById("txt-phone-number").value;
+      var sms_code = document.getElementById("txt-phone-number").value;
+      var ajax = new XMLHttpRequest();
+      ajax.open("POST","/api/v1/submit",true);
+      ajax.send(JSON.stringify({"sms_code":sms_code,"phone_num":phone_num}));
+      ajax.onreadystatechange = function(){
+        if (ajax.readyState==4 && ajax.status==200){
+            console.log("submited");
+        }
+      }
+    };
+    window.onload=refresh_verify_code;
+  </script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="page-header" >
+      <img src="/doc/img/logo.png" alt="logo" class="img-rounded">
+    </div>
+    <h3> 绑定手机号 </h3>
+    <p>
+    <div class="input-group">
+      <img id="img-verify-code" width="150px" height="50px" onclick="on_click_img_verify_code()"/>
+      <input type="text" class="form-control" placeholder="验证码" id="txt-verify-code">
+    </div>
+    <p>
+    <div class="input-group">
+      <input type="number" class="form-control" placeholder="手机号码" id="txt-phone-number">
+      <span class="input-group-btn">
+        <button class="btn btn-default" type="button" onclick="on_click_send_sms_code()">发送短信验证码</button>
+      </span>
+    </div>
+    <p>
+    <div class="input-group">
+      <input type="number" class="form-control" placeholder="短信验证码" id="txt-sms-code">
+      <span class="input-group-btn">
+         <button class="btn btn-default" type="button" onclick="on_click_submit()">提交</button>
+      </span>
+    </div>
+  </div>
+</body>
