@@ -26,8 +26,9 @@ func Init() {
 	configMap, err = parseFromINI()
 	if err == nil {
 		log.Info("read ini success")
+		return
 	}
-	log.Errorf("read ini fail, err: %v, try to read env", err)
+	log.Errorf("read ini fail, err: %v,try to read env", err)
 	configMap = parseFromENV()
 }
 
@@ -39,7 +40,7 @@ func parseFromINI() (m map[string]string, err error) {
 		log.Error(err)
 		return
 	}
-	confPath := filepath.Join(appPath, "conf", "app.conf")
+	confPath := filepath.Join(appPath, "etc", "app.conf")
 
 	mutex.Lock()
 	defer mutex.Unlock()
@@ -92,13 +93,11 @@ func Int(key string) (ret int, err error) {
 	value, err := getData(key)
 	if err != nil {
 		err = fmt.Errorf("configer get key: %v fail, err: %w", key, err)
-		log.Error(err)
 		return
 	}
 	ret, err = strconv.Atoi(value)
 	if err != nil {
 		err = fmt.Errorf("configer get key: %v fail, raw value: %v, err: %w", key, value, err)
-		log.Error(err)
 		return
 	}
 	return
@@ -108,7 +107,6 @@ func String(key string) (ret string, err error) {
 	ret, err = getData(key)
 	if err != nil {
 		err = fmt.Errorf("configer get key: %v fail, err: %w", key, err)
-		log.Error(err)
 		return
 	}
 	return
@@ -133,6 +131,7 @@ func DefaultString(key string, defaultValue string) (ret string) {
 func MustString(key string) (ret string) {
 	ret, err := String(key)
 	if err != nil {
+		log.Error(err)
 		panic(err)
 	}
 	return

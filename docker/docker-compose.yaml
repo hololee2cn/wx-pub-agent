@@ -34,10 +34,31 @@ services:
     networks:
       - pubplatform
 
-  pubplatform:
+  pcaptcha:
     image: leeoj2/pubplatform:1.0
-    container_name: pubplatform
-    hostname: pubplatform
+    container_name: pcaptcha
+    hostname: pcaptcha
+    restart: always
+    environment:
+      - GIN_MODE=release
+      - TZ=Asia/Shanghai
+      - WAIT_HOSTS=redis:6379
+      - redis_addresses=redis:6379
+    ports:
+    - "50051:50051"
+    networks:
+      - pubplatform
+    depends_on:
+      - redis
+    links:
+      - redis:redis
+    command: >
+      sh -c "/mybin captcha"
+
+  pwebapi:
+    image: leeoj2/pubplatform:1.0
+    container_name: pwebapi
+    hostname: pwebapi
     restart: always
     environment:
       - GIN_MODE=release
@@ -71,5 +92,13 @@ services:
       done;
 
       echo "database is ready!";
-      echo "start pubplatform service here";
+      while ! nc -z pcaptcha 50051;
+            do
+             echo "wait for pcaptcha";
+             sleep 1;
+            done;
+      echo "pcaptcha is ready!";
+
+      echo "start pwebapi service here";
       '
+      sh -c "/mybin webapi"

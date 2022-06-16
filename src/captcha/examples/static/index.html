@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>captcha test</title>
+</head>
+<body>
+<div>
+    <img id="imgCaptcha" src="" alt=""
+         style="width: 200px; height: 50px; border: 1px solid red; cursor: pointer;"
+         title="click to refresh"><br>
+    <input id="iptCaptcha" type="text" placeholder="Please input captcha"
+           style="width: 200px; height:50px; line-height: 50px;"><br><br><br>
+
+    <label>line options</label>
+    <label for="line1"><input id="line1" name="line" type="checkbox" value="2">空心线</label>
+    <label for="line2"><input id="line2" name="line" type="checkbox" value="4">实心细线</label>
+    <label for="line3"><input id="line3" name="line" type="checkbox" value="8">sine线</label><br><br>
+
+    <input id="btnSubmit" type="button" value="submit"><br><br>
+    <input id="btnRefresh" type="button" value="refresh""><br><br>
+</div>
+
+<script src="https://cdn.bootcss.com/axios/0.19.0/axios.js"></script>
+<script>
+    var oInput = document.getElementById('iptCaptcha');
+    var oBtnSubmit = document.getElementById('btnSubmit');
+    var oRefresh = document.getElementById('btnRefresh');
+    var oImg = document.getElementById('imgCaptcha');
+    var oLineCheckbox = document.querySelectorAll('[name="line"]');
+
+    var id = '';
+    var lineOptions = 0;
+
+    oBtnSubmit.addEventListener('click', function (e) {
+        var answer = oInput.value || '';
+        answer = answer.replace(/^\s*|\s*$/g, '');
+
+        axios.get(`/verify?id=${id}&answer=${answer}`)
+            .then(function (r) {
+                if (r.data.code != 0) {
+                    alert(r.data.msg);
+                    return;
+                }
+
+                if (!r.data.data.result) {
+                    alert("expired or not correct")
+                    // refresh()
+                    return
+                }
+
+                alert("ok")
+            })
+            .catch(function (error) {
+                alert(error);
+            });
+    }, false)
+
+    oRefresh.addEventListener('click', function (e) {
+        refresh();
+    }, false)
+
+    oImg.addEventListener('click', function (e) {
+        refresh();
+    }, false);
+
+    function refresh() {
+        oInput.value = '';
+        id = '';
+
+        // 线
+        for (var i = 0; i < oLineCheckbox.length; i++) {
+            var tmpCheckbox = oLineCheckbox[i]
+            if (tmpCheckbox.checked) {
+                lineOptions |= parseInt(tmpCheckbox.value, 10);
+            }
+        }
+        axios.get(`/get?line=${lineOptions}`)
+            .then(function (r) {
+                lineOptions = 0
+                if (r.data.code != 0) {
+                    alert(r.data.msg);
+                    return;
+                }
+
+                oImg.src = r.data.data.value;
+                id = r.data.data.id;
+            })
+            .catch(function (error) {
+                lineOptions = 0
+                alert(error);
+            });
+    }
+
+    window.onload = refresh;
+</script>
+</body>
+</html>
