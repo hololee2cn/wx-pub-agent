@@ -1,20 +1,14 @@
 package router
 
 import (
-	"fmt"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/interfaces/controller"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/interfaces/middleware"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/wxutil"
-	"net/http"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hololee2cn/pkg/ginx"
-	"github.com/hololee2cn/wxpub/v1/src/utils"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/interfaces/controller"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/interfaces/middleware"
 )
 
 var (
@@ -47,39 +41,42 @@ func New() *gin.Engine {
 }
 
 func initRouter(router *gin.Engine) {
-	open := router.Group("/api/v1/")
+	root := router.Group("")
 	// web
-	routerWeb(open)
+	routerWeb(root)
+
+	api := root.Group("/api/v1/")
 	// wx api
-	routerWX(open)
+	routerWX(api)
 	// user info verify and binding
-	routerVerify(open)
+	routerVerify(api)
 
 	router.Use(middleware.GinContext)
 
 	// msg handler
-	routerMsg(open)
+	routerMsg(api)
 }
 
 func routerWeb(open *gin.RouterGroup) {
-	open.Static("/static", "doc")
-	open.StaticFile("/favicon.icon", "doc/img/favicon.icon")
-	open.GET("/", func(context *gin.Context) {
-		ts := time.Now().Unix()
-		nonce := utils.GenRandNonce()
-		sig := wxutil.CalcSign(fmt.Sprintf("%d", ts), nonce, consts.Token)
-		context.HTML(http.StatusOK, "index.html", gin.H{
-			"app_id":      config.AppID,
-			"timestamp":   ts,
-			"nonce_str":   nonce,
-			"signature":   sig,
-			"js_api_list": []string{""},
-		})
-	})
+	open.Static("/img", "doc/img")
+	open.StaticFile("/favicon.icon", "img/favicon.icon")
+	open.StaticFile("", "doc/static/index.html")
+	// open.GET("/", func(context *gin.Context) {
+	// ts := time.Now().Unix()
+	// nonce := utils.GenRandNonce()
+	// sig := wxutil.CalcSign(fmt.Sprintf("%d", ts), nonce, consts.Token)
+	// context.HTML(http.StatusOK, "doc/index.html", gin.H{
+	//	"app_id":      config.AppID,
+	//	"timestamp":   ts,
+	//	"nonce_str":   nonce,
+	//	"signature":   sig,
+	//	"js_api_list": []string{""},
+	// })
+	// })
 }
 
 func routerWX(router *gin.RouterGroup) {
-	wxGroup := router.Group("/wx")
+	wxGroup := router.Group("/wxapi")
 	{
 		// wx开放平台接入测试接口
 		wxGroup.GET("", wx.GetWXCheckSign)
@@ -92,7 +89,7 @@ func routerWX(router *gin.RouterGroup) {
 func routerVerify(router *gin.RouterGroup) {
 	smsProfileGroup := router.Group("/user")
 	{
-		smsProfileGroup.GET("/send-sms", user.SendSms)
+		smsProfileGroup.POST("/send-sms", user.SendSms)
 		smsProfileGroup.POST("/verify-sms", user.VerifyAndUpdatePhone)
 		smsProfileGroup.GET("/captcha", user.GenCaptcha)
 	}

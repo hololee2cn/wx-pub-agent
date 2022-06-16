@@ -2,13 +2,13 @@ package utils
 
 import (
 	"fmt"
-	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/model"
-	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/consts"
 	"image/color"
 	"regexp"
 	"strconv"
 	"strings"
 
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/model"
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/consts"
 
 	"github.com/mojocn/base64Captcha"
 )

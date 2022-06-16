@@ -3,6 +3,10 @@ package webapi
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
@@ -10,9 +14,6 @@ import (
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/interfaces/webapi/router"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/tasks"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/hololee2cn/pkg/extra"
 	"github.com/hololee2cn/wxpub/v1/src/pkg/httpx"

@@ -1,9 +1,10 @@
 package consts
 
 import (
-	"github.com/hololee2cn/wxpub/v1/src/pkg/config"
 	"strings"
 	"sync"
+
+	"github.com/hololee2cn/wxpub/v1/src/pkg/config"
 )
 
 var (

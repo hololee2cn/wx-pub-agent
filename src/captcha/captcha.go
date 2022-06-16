@@ -3,6 +3,10 @@ package captcha
 import (
 	"context"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
+
 	grpcMW "github.com/grpc-ecosystem/go-grpc-middleware"
 	"github.com/hololee2cn/pkg/extra"
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/rpc/server"
@@ -13,9 +17,6 @@ import (
 	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"os"
-	"os/signal"
-	"syscall"
 
 	log "github.com/sirupsen/logrus"
 )

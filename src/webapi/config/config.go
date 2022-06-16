@@ -1,10 +1,11 @@
 package config
 
 import (
-	"github.com/hololee2cn/wxpub/v1/src/pkg/config"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"strings"
 	"sync"
+
+	"github.com/hololee2cn/wxpub/v1/src/pkg/config"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 
 	"github.com/sirupsen/logrus"
 )

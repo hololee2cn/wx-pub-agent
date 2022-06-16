@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 

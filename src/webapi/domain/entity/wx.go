@@ -2,6 +2,7 @@ package entity
 
 import (
 	"encoding/xml"
+
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 )
 

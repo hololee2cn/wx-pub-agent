@@ -6,10 +6,11 @@ package xerrors
 
 import (
 	"fmt"
-	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/pkg/errors/internal/xerrors/internal"
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/pkg/errors/internal/xerrors/internal"
 )
 
 const percentBangString = "%!"

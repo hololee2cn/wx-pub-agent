@@ -74,8 +74,8 @@ const (
 )
 
 const (
-	MaxRetryCount     = 3  // 消息最大失败重试次数，实际调用接口次数为3*3(http client repeated count)=9
-	MaxWXCallBackTime = 15 // 微信回调最大时间
+	MaxRetryCount     = 3   // 消息最大失败重试次数，实际调用接口次数为3*3(http client repeated count)=9
+	MaxWXCallBackTime = 15  // 微信回调最大时间
 	MaxHandleMsgCount = 100 // 最大处理消息条数
 )
 

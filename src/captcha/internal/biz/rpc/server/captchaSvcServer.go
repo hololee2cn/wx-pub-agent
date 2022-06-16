@@ -2,10 +2,11 @@ package server
 
 import (
 	"context"
+	"image/color"
+
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/model"
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/service"
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/utils"
-	"image/color"
 
 	pb "github.com/hololee2cn/captcha/pkg/grpcIFace"
 	me "github.com/hololee2cn/wxpub/v1/src/captcha/internal/errors"

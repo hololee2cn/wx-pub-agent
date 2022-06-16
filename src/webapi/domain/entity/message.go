@@ -2,8 +2,9 @@ package entity
 
 import (
 	"encoding/json"
-	consts2 "github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"time"
+
+	consts2 "github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 
 	"github.com/hololee2cn/wxpub/v1/src/utils"
 )

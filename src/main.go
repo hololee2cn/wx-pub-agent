@@ -2,10 +2,11 @@ package main
 
 import (
 	"context"
+	"os"
+
 	"github.com/hololee2cn/wxpub/v1/src/captcha"
 	"github.com/hololee2cn/wxpub/v1/src/webapi"
 	"github.com/urfave/cli/v2"
-	"os"
 )
 
 var (

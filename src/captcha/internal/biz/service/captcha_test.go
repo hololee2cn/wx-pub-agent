@@ -1,9 +1,10 @@
 package service
 
 import (
+	"testing"
+
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/model"
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/store"
-	"testing"
 
 	"github.com/stretchr/testify/assert"
 )

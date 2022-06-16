@@ -1,11 +1,12 @@
 package store
 
 import (
-	"github.com/hololee2cn/wxpub/v1/src/pkg/config"
-	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/hololee2cn/wxpub/v1/src/pkg/config"
+	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 
 	"github.com/google/uuid"
 
