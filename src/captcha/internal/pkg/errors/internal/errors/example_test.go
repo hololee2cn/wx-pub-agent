@@ -3,7 +3,7 @@ package errors_test
 import (
 	"fmt"
 
-	"github.com/hololee2cn/captcha/internal/pkg/errors/internal/errors"
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/pkg/errors/internal/errors"
 )
 
 func ExampleNew() {
