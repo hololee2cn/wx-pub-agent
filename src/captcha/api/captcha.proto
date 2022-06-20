@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package shared.captcha;
+
+// 这个会生成相应目录
+option go_package = "pkg/grpcIFace";
+
+service CaptchaService {
+  rpc Get(GetCaptchaRequest) returns (GetCaptchaResponse) {}
+  rpc Verify(VerifyCaptchaRequest) returns (VerifyCaptchaResponse) {}
+}
+
+message GetCaptchaRequest {
+  // 验证码类型, 支持的有: audio, digit, string, chinese, match
+  // 默认为string(字母+数字)
+  string Type = 1;
+
+  // 验证码图片 宽度, 高度及字符个数
+  // 默认值分别为: 150, 50, 5
+  int32 Width = 2;
+  int32 Height = 3;
+  int32 Length = 4;
+
+  // 验证码有效期, 单位为秒, 默认为180秒
+  int64 MaxAge = 5;
+
+  // 以#rrggbbaa的方式指定, 均为十六进制, alpha的范围为:00-ff(00为全透明, ff为不透明)
+  // 默认值为 #00000000
+  string BgColor = 6;
+
+  // type为audio时, 需要设置语言, 默认为zh
+  // 支持: "en", "ja", "ru", "zh"
+  string AudioLanguage = 7;
+
+  // 噪音(Noise)就是在验证码文字底部添加一些干扰的文字, NoiseCount就是干扰文字的个数, 默认为50
+  int32 NoiseCount = 10;
+
+  // 干扰线设置, 默认为OptionsShowAllLines(请参考consts.go)
+  int32 ShowLineOptions = 11;
+
+  // 纯数字类型的验证码相关参数
+  // 歪斜程度, 取值范围为(0到1), 默认为0
+  double DigitMaxSkew = 12;
+  // 干扰点(一些小点), 默认为0
+  int32 DigitDotCount = 13;
+
+  // 调试模式会返回answer，方便测试
+  bool Debug = 14;
+}
+
+message GetCaptchaResponse {
+  string ID = 1;
+  string Base64Value = 2;
+  string Answer = 3;
+}
+
+message VerifyCaptchaRequest {
+  string ID = 1;
+  string Answer = 2;
+}
+
+message VerifyCaptchaResponse {
+  bool Data = 1;
+}
+
+
+// shell protoc --go_out=plugins=grpc:. ./rpc/protobuf/*.proto

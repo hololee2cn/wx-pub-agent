@@ -1,8 +1,9 @@
 FROM python:2
 
 WORKDIR ./
-COPY conf ./conf
 ADD mybin ./
+RUN apt-get -q update && apt-get -qy install netcat
 RUN chmod +x ./mybin
 EXPOSE 80
-ENTRYPOINT [ "./mybin" ]
+EXPOSE 50051
+CMD ["./mybin","-h"]

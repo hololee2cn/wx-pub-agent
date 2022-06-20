@@ -1,0 +1,112 @@
+package router
+
+import (
+	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/hololee2cn/pkg/ginx"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/interfaces/controller"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/interfaces/middleware"
+)
+
+var (
+	wx   *controller.WX
+	user *controller.User
+	msg  *controller.Message
+)
+
+func registerController() {
+	wx = controller.NewWXController(
+		repository.DefaultWXRepository())
+	user = controller.NewUserController(
+		repository.DefaultUserRepository())
+	msg = controller.NewMessageController(
+		repository.DefaultMessageRepository())
+}
+
+func New() *gin.Engine {
+	gin.SetMode(string(config.SMode))
+
+	if strings.ToLower(string(config.SMode)) == gin.ReleaseMode {
+		ginx.DisableConsoleColor()
+	}
+	registerController()
+	engine := gin.New()
+	engine.Use(ginx.Recovery())
+	initRouter(engine)
+
+	return engine
+}
+
+func initRouter(router *gin.Engine) {
+	root := router.Group("")
+	// web
+	routerWeb(root)
+
+	api := root.Group("/api/v1/")
+	// wx api
+	routerWX(api)
+	// user info verify and binding
+	routerVerify(api)
+
+	router.Use(middleware.GinContext)
+
+	// msg handler
+	routerMsg(api)
+}
+
+func routerWeb(open *gin.RouterGroup) {
+	open.Static("/img", "doc/img")
+	open.StaticFile("/favicon.icon", "img/favicon.icon")
+	open.StaticFile("", "doc/static/index.html")
+	// open.GET("/", func(context *gin.Context) {
+	// ts := time.Now().Unix()
+	// nonce := utils.GenRandNonce()
+	// sig := wxutil.CalcSign(fmt.Sprintf("%d", ts), nonce, consts.Token)
+	// context.HTML(http.StatusOK, "doc/index.html", gin.H{
+	//	"app_id":      config.AppID,
+	//	"timestamp":   ts,
+	//	"nonce_str":   nonce,
+	//	"signature":   sig,
+	//	"js_api_list": []string{""},
+	// })
+	// })
+}
+
+func routerWX(router *gin.RouterGroup) {
+	wxGroup := router.Group("/wxapi")
+	{
+		// wx开放平台接入测试接口
+		wxGroup.GET("", wx.GetWXCheckSign)
+		// todo: 暂时先用明文传输，后续补充aes加密传输
+		// wx开放平台事件接收
+		wxGroup.POST("", wx.HandleXML)
+	}
+}
+
+func routerVerify(router *gin.RouterGroup) {
+	smsProfileGroup := router.Group("/user")
+	{
+		smsProfileGroup.POST("/send-sms", user.SendSms)
+		smsProfileGroup.POST("/verify-sms", user.VerifyAndUpdatePhone)
+		smsProfileGroup.GET("/captcha", user.GenCaptcha)
+	}
+}
+
+func routerMsg(router *gin.RouterGroup) {
+	msgGroup := router.Group("/message")
+	{
+		// tmpl msg pusher
+		pushSubGroup := msgGroup.Group("/tmpl-push")
+		{
+			pushSubGroup.POST("", msg.SendTmplMessage)
+		}
+		// tmpl msg status
+		statusSubGroup := msgGroup.Group("/status")
+		{
+			statusSubGroup.GET("/:id", msg.TmplMsgStatus)
+		}
+	}
+}
