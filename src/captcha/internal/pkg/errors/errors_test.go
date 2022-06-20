@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	perrors "github.com/hololee2cn/captcha/internal/pkg/errors/internal/errors"
-	"github.com/hololee2cn/captcha/internal/pkg/errors/internal/xerrors"
+	perrors "github.com/hololee2cn/wxpub/v1/src/captcha/internal/pkg/errors/internal/errors"
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/pkg/errors/internal/xerrors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -17,28 +17,28 @@ func Test_isPkgError(t *testing.T) {
 	assert.Equal(t, false, isPkgError(err))
 
 	err = perrors.Errorf("abc%v", "bcd")
-	assert.Equal(t, true, isPkgError(err))
+	assert.Equal(t, false, isPkgError(err))
 
 	err = Errorf("abc")
-	assert.Equal(t, true, isPkgError(err))
+	assert.Equal(t, false, isPkgError(err))
 
-	err1 := Errorf("a : %w", err)
-	assert.Equal(t, true, isPkgError(err1))
+	err1 := Errorf("a : %v", err)
+	assert.Equal(t, false, isPkgError(err1))
 
 	err1 = Errorf("a : %v", err)
-	assert.Equal(t, true, isPkgError(err1))
+	assert.Equal(t, false, isPkgError(err1))
 
 	err1 = Errorf("a : %s", err)
-	assert.Equal(t, true, isPkgError(err1))
+	assert.Equal(t, false, isPkgError(err1))
 
 	err1 = Errorf("a : %+v", err)
-	assert.Equal(t, true, isPkgError(err1))
+	assert.Equal(t, false, isPkgError(err1))
 
 	err1 = Wrap(err, "abc")
-	assert.Equal(t, true, isPkgError(err1))
+	assert.Equal(t, false, isPkgError(err1))
 
 	err = fmt.Errorf("abc: %w", err)
-	assert.Equal(t, true, isPkgError(err))
+	assert.Equal(t, false, isPkgError(err))
 }
 
 func Test_isXErrorsUnwrapError(t *testing.T) {
