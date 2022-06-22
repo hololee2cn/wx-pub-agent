@@ -8,21 +8,23 @@ require (
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
-	github.com/hololee2cn/captcha v0.0.0-20220610082308-d9a8234ac006
-	github.com/hololee2cn/captcha/pkg/grpcIFace v0.0.0-20220609082807-54236e6eb427
-	github.com/hololee2cn/pkg v0.0.0-20220609064745-6bcbb6ef3e4b
-	github.com/hololee2cn/sms-xuanwu/pkg/grpcIFace v0.0.0-20220609083827-6684f69a00da
+	github.com/hololee2cn/captcha/pkg/grpcIFace v0.0.0-20220610082308-d9a8234ac006
+	github.com/hololee2cn/pkg v0.0.0-20220615092301-cef103e88c3c
+	github.com/hololee2cn/sms-xuanwu/pkg/grpcIFace v0.0.0-20220610084208-c3977e308b65
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.7.2
-	github.com/stretchr/testify v1.7.2
-	github.com/urfave/cli/v2 v2.8.1
+	github.com/stretchr/testify v1.7.4
+	github.com/urfave/cli/v2 v2.10.2
 	google.golang.org/grpc v1.47.0
 	google.golang.org/protobuf v1.28.0
 	gorm.io/driver/mysql v1.3.4
-	gorm.io/gorm v1.23.5
-	github.com/cpuguy83/go-md2man/v2 v2.0.1 // indirect
+	gorm.io/gorm v1.23.6
+)
+
+require (
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
