@@ -104,7 +104,7 @@ func (a *WXRepository) handlerTextXML(ctx context.Context, reqBody *entity.TextR
 		log.Errorf("handlerTextXML WXRepository wx repo set msg id to redis failed,traceID:%s,err:%+v", traceID, err)
 	}
 	// 用户绑定链接推送
-	return a.makeTextResponseBody(reqBody.ToUserName, reqBody.FromUserName, fmt.Sprintf("%s%s", consts.SubscribeRespContent, config.VerifyProfileURL))
+	return a.makeTextResponseBody(reqBody.ToUserName, reqBody.FromUserName, fmt.Sprintf("%s%s%s%s", consts.SubscribeRespContent, `<a href="`, fmt.Sprintf("%s%s%s", config.VerifyProfileURL, "#", reqBody.FromUserName), `">绑定</a>`))
 }
 
 func (a *WXRepository) handlerEventXML(ctx context.Context, reqBody *entity.TextRequestBody) ([]byte, error) {
@@ -158,7 +158,7 @@ func (a *WXRepository) handlerSubscribeEvent(ctx context.Context, reqBody *entit
 	if err != nil {
 		log.Errorf("handlerSubscribeEvent WXRepository wx repo set msg id to redis failed,traceID:%s,err:%+v", traceID, err)
 	}
-	return fmt.Sprintf("%s%s", consts.SubscribeRespContent, config.VerifyProfileURL), nil
+	return fmt.Sprintf("%s%s%s%s", consts.SubscribeRespContent, `<a href="`, fmt.Sprintf("%s%s%s", config.VerifyProfileURL, "#", reqBody.FromUserName), `">绑定</a>`), nil
 }
 
 func (a *WXRepository) handlerUnSubscribeEvent(ctx context.Context, reqBody *entity.TextRequestBody) (string, error) {
