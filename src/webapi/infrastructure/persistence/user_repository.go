@@ -5,11 +5,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
-
-	"github.com/hololee2cn/pkg/ginx"
-
 	"github.com/go-redis/redis/v7"
+	"github.com/hololee2cn/pkg/ginx"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -139,4 +137,20 @@ func (a *UserRepo) ListUserByPhones(ctx context.Context, phones []string) (users
 		return
 	}
 	return
+}
+
+func (a *UserRepo) IsExistPhone(ctx context.Context, phone string) (exist bool, err error) {
+	traceID := ginx.ShouldGetTraceID(ctx)
+	log.Debugf("IsExistPhone traceID:%s", traceID)
+	var user entity.User
+	if err = a.DB.Where("phone = ?", phone).First(&user).Error; err != nil {
+		// 不存在记录
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Errorf("IsExistPhone find user by phone is not found,traceID:%s,err:%+v", traceID, err)
+			return false, nil
+		}
+		log.Errorf("IsExistPhone find user by phone failed,traceID:%s,err:%+v", traceID, err)
+		return false, err
+	}
+	return true, nil
 }

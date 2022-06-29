@@ -3,24 +3,19 @@ package persistence
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
+	"github.com/hololee2cn/pkg/errorx"
+	"github.com/hololee2cn/pkg/ginx"
+	"github.com/hololee2cn/wxpub/v1/src/pkg/httputil"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
-
-	"github.com/hololee2cn/pkg/ginx"
-
-	"github.com/hololee2cn/wxpub/v1/src/pkg/httputil"
-
-	"github.com/hololee2cn/pkg/errorx"
-	"gorm.io/gorm"
-
-	errors2 "errors"
-
 	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 type MessageRepo struct {
@@ -142,7 +137,7 @@ func (a *MessageRepo) IsExistMsgLogFromDB(ctx context.Context, fromUserName stri
 	err := a.DB.Where("to_user = ? AND create_time = ?", fromUserName, createTime).First(&failureMsgLog).Error
 	if err != nil {
 		// 不存在记录
-		if errors2.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			log.Errorf("IsExistMsgLogFromDB record is not found,traceID:%s,err:%+v", traceID, err)
 			return false, nil
 		}

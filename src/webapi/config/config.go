@@ -6,7 +6,6 @@ import (
 
 	"github.com/hololee2cn/wxpub/v1/src/pkg/config"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,6 +29,7 @@ var (
 	WXBaseURL        = config.DefaultString("wx_base_url", "https://api.weixin.qq.com")
 	WXAccessTokenURL = config.DefaultString("wx_access_token_url", WXBaseURL+"/cgi-bin/token")
 	WXMsgTmplSendURL = config.DefaultString("wx_msg_tmpl_send_url", WXBaseURL+"/cgi-bin/message/template/send")
+	WXListTmplURL    = config.DefaultString("wx_list_tmpl_url", WXBaseURL+"/cgi-bin/template/get_all_private_template")
 
 	RedisAddresses   []string
 	AppID            string

@@ -4,9 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
-	consts2 "github.com/hololee2cn/wxpub/v1/src/webapi/consts"
-
 	"github.com/hololee2cn/wxpub/v1/src/utils"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 )
 
 type SendTmplMsgReq struct {
@@ -16,6 +15,8 @@ type SendTmplMsgReq struct {
 	Phones []string `json:"phones"`
 	// 模板数据
 	Data json.RawMessage `json:"data"`
+	// 跳转详情url
+	URL string `json:"url"`
 }
 
 type SendTmplMsgResp struct {
@@ -36,19 +37,21 @@ type TmplMsgStatusResp struct {
 
 type TmplMsgStatusItem struct {
 	// 主键id
-	ID int `json:"id" gorm:"id"`
+	ID int `json:"id"`
 	// 用户号码
-	Phone string `json:"phone" gorm:"phone"`
+	Phone string `json:"phone"`
 	// 模板id
-	TemplateID string `json:"template_id" gorm:"template_id"`
+	TemplateID string `json:"template_id"`
 	// 发送模板内容
-	Content json.RawMessage `json:"content" gorm:"content"`
+	Content json.RawMessage `json:"content"`
+	// 跳转详情url
+	URL string `json:"url"`
 	// 失败原因
-	Cause string `json:"cause" gorm:"cause"`
+	Cause string `json:"cause"`
 	// 发送状态，0为pending判定中，1为sending发送中，2为success成功，3为failure失败
-	Status int `json:"status" gorm:"status"`
+	Status int `json:"status"`
 	// 创建时间
-	CreateTime int64 `json:"create_time" gorm:"create_time"`
+	CreateTime int64 `json:"create_time"`
 }
 
 type SendTmplMsgRemoteReq struct {
@@ -60,6 +63,8 @@ type SendTmplMsgRemoteReq struct {
 	TemplateID string `json:"template_id"`
 	// 模板数据
 	Data json.RawMessage `json:"data"`
+	// 跳转详情url
+	URL string `json:"url"`
 }
 
 type SendTmplMsgRemoteResp struct {
@@ -83,6 +88,8 @@ type MsgLog struct {
 	TemplateID string `json:"template_id" gorm:"template_id"`
 	// 发送模板内容
 	Content json.RawMessage `json:"content" gorm:"content"`
+	// 跳转详情url
+	URL string `json:"url" gorm:"url"`
 	// 失败原因
 	Cause string `json:"cause" gorm:"cause"`
 	// 发送状态，0为pending判定中，1为sending发送中，2为success成功，3为failure失败
@@ -111,6 +118,7 @@ func (m *MsgLog) TransferSendTmplMsgRemoteReq() SendTmplMsgRemoteReq {
 		ToUser:     m.ToUser,
 		TemplateID: m.TemplateID,
 		Data:       m.Content,
+		URL:        m.URL,
 	}
 }
 
@@ -120,6 +128,7 @@ func (m *MsgLog) TransferTmplMsgStatusItem() TmplMsgStatusItem {
 		Phone:      m.Phone,
 		TemplateID: m.TemplateID,
 		Content:    m.Content,
+		URL:        m.URL,
 		Cause:      m.Cause,
 		Status:     m.Status,
 		CreateTime: m.CreateTime,
@@ -137,6 +146,9 @@ func (r *SendTmplMsgReq) Validate() (errorMsg string) {
 	}
 	// 去重
 	r.Phones = utils.RemoveStringRepeated(r.Phones)
+	if len(r.Phones) > 100 {
+		errorMsg = "the phones slice is too long"
+	}
 	return
 }
 
@@ -147,8 +159,9 @@ func (r *SendTmplMsgReq) TransferPendingMsgLog(requestID string, toUser string, 
 		Phone:      phone,
 		TemplateID: r.TmplMsgID,
 		Content:    r.Data,
+		URL:        r.URL,
 		Cause:      "",
-		Status:     consts2.SendPending,
+		Status:     consts.SendPending,
 		Count:      0,
 		CreateTime: time.Now().Unix(),
 		UpdateTime: 0,
@@ -162,8 +175,9 @@ func (r *SendTmplMsgReq) TransferFailureMsgLog(requestID string, toUser string, 
 		Phone:      phone,
 		TemplateID: r.TmplMsgID,
 		Content:    r.Data,
+		URL:        r.URL,
 		Cause:      "",
-		Status:     consts2.SendFailure,
+		Status:     consts.SendFailure,
 		Count:      0,
 		CreateTime: time.Now().Unix(),
 		UpdateTime: 0,

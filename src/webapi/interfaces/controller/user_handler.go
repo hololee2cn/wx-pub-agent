@@ -3,16 +3,13 @@ package controller
 import (
 	"strconv"
 
+	"github.com/gin-gonic/gin"
+	"github.com/hololee2cn/pkg/errorx"
+	"github.com/hololee2cn/pkg/ginx"
+	"github.com/hololee2cn/wxpub/v1/src/utils"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/application"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
-
-	"github.com/hololee2cn/pkg/ginx"
-
-	"github.com/hololee2cn/pkg/errorx"
-	"github.com/hololee2cn/wxpub/v1/src/utils"
-
-	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -79,7 +76,15 @@ func (u *User) SendSms(c *gin.Context) {
 		log.Errorf("wrong captcha answer: %s, traceID:%s", req.CaptchaAnswer, traceID)
 		ginx.BombErr(errorx.CodeForbidden, "wrong captcha answer")
 	}
-
+	exist, err := u.user.VerifyPhone(ctx, req.Phone)
+	if err != nil {
+		log.Errorf("VerifyPhone failed, traceID:%s, err:%+v", traceID, err)
+		ginx.CustomErr(err)
+	}
+	if exist {
+		log.Errorf("exist phone:%s", req.Phone)
+		ginx.BombErr(errorx.CodeResourcesHasExist, "phone is exist")
+	}
 	err = u.user.SendSms(ctx, req)
 	if err != nil {
 		log.Errorf("SendSms failed, traceID:%s, err:%+v", traceID, err)

@@ -4,14 +4,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/hololee2cn/pkg/errorx"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/g"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
-
-	"github.com/hololee2cn/pkg/errorx"
-
 	log "github.com/sirupsen/logrus"
 )
 
