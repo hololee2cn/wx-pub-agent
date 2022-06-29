@@ -10,8 +10,8 @@ func TestCode(t *testing.T) {
 	err := ErrorfWithCode(123, "sdlkfj%v", "abc")
 	assert.Equal(t, 123, Code(err))
 
-	err1 := Errorf("sdlkfj: %w", err)
-	assert.Equal(t, 123, Code(err1))
+	err1 := Errorf("sdlkfj: %v", err)
+	assert.Equal(t, -1, Code(err1))
 
 	err1 = Wrap(err, "abc")
 	assert.Equal(t, 123, Code(err1))
@@ -19,10 +19,10 @@ func TestCode(t *testing.T) {
 	err1 = Wrap(err, "abc", 234)
 	assert.Equal(t, 234, Code(err1))
 
-	err1 = Errorf("sdlkfj: %w", err)
-	assert.Equal(t, 123, Code(err1))
+	err1 = Errorf("sdlkfj: %v", err)
+	assert.Equal(t, -1, Code(err1))
 
-	err2 := ErrorfWithCode(345, "sabc: %w", err1)
+	err2 := ErrorfWithCode(345, "sabc: %v", err1)
 	assert.Equal(t, 345, Code(err2))
 
 	err3 := Wrap(err2, "abc", 456)
@@ -33,8 +33,8 @@ func TestCodeSource(t *testing.T) {
 	err := ErrorfWithCode(123, "sdlkfj%v", "abc")
 	assert.Equal(t, 123, CodeSource(err))
 
-	err1 := Errorf("sdlkfj: %w", err)
-	assert.Equal(t, 123, CodeSource(err1))
+	err1 := Errorf("sdlkfj: %v", err)
+	assert.Equal(t, -1, CodeSource(err1))
 
 	err1 = Wrap(err, "abc")
 	assert.Equal(t, 123, CodeSource(err1))
@@ -42,14 +42,14 @@ func TestCodeSource(t *testing.T) {
 	err1 = Wrap(err, "abc", 234)
 	assert.Equal(t, 123, CodeSource(err1))
 
-	err1 = Errorf("sdlkfj: %w", err)
-	assert.Equal(t, 123, CodeSource(err1))
+	err1 = Errorf("sdlkfj: %v", err)
+	assert.Equal(t, -1, CodeSource(err1))
 
-	err2 := ErrorfWithCode(345, "sabc: %w", err1)
-	assert.Equal(t, 123, CodeSource(err2))
+	err2 := ErrorfWithCode(345, "sabc: %v", err1)
+	assert.Equal(t, 345, CodeSource(err2))
 
 	err3 := Wrap(err2, "abc", 456)
-	assert.Equal(t, 123, CodeSource(err3))
+	assert.Equal(t, 345, CodeSource(err3))
 }
 
 func TestParseErrMsg(t *testing.T) {

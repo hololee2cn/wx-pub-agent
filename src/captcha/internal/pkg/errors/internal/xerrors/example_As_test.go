@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hololee2cn/captcha/internal/pkg/errors/internal/xerrors"
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/pkg/errors/internal/xerrors"
 )
 
 func ExampleAs() {
