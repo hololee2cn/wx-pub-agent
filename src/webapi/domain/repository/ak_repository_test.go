@@ -4,9 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
-
 	"bou.ke/monkey"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

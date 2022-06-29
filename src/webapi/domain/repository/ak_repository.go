@@ -4,13 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/hololee2cn/pkg/ginx"
+	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
-
-	"github.com/hololee2cn/pkg/ginx"
-
-	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
-
 	log "github.com/sirupsen/logrus"
 )
 

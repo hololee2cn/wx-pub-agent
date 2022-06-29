@@ -21,10 +21,6 @@ func NewWXController(awApp application.WXInterface) *WX {
 }
 
 func (a *WX) GetWXCheckSign(c *gin.Context) {
-	ctx := ginx.DefaultTodoContext(c)
-	traceID := ginx.ShouldGetTraceID(ctx)
-	log.Debugf("%s", traceID)
-
 	var param entity.WXCheckReq
 	ginx.BindQuery(c, &param)
 	// wx开放平台验证

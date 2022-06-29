@@ -19,6 +19,7 @@ type UserInterface interface {
 	SaveUser(ctx context.Context, user entity.User, isUpdateAll bool) error
 	GenCaptcha(ctx context.Context, width int32, height int32) (string, string, error)
 	VerifyCaptcha(ctx context.Context, captchaID string, captchaAnswer string) (bool, error)
+	VerifyPhone(ctx context.Context, phone string) (bool, error)
 	SendSms(ctx context.Context, req entity.SendSmsReq) error
 	VerifySmsCode(ctx context.Context, req entity.VerifyCodeReq) (bool, bool, error)
 }
@@ -37,6 +38,10 @@ func (u *userApp) GenCaptcha(ctx context.Context, width int32, height int32) (st
 
 func (u *userApp) VerifyCaptcha(ctx context.Context, captchaID string, captchaAnswer string) (bool, error) {
 	return u.user.VerifyCaptcha(ctx, captchaID, captchaAnswer)
+}
+
+func (u *userApp) VerifyPhone(ctx context.Context, phone string) (bool, error) {
+	return u.user.VerifyPhone(ctx, phone)
 }
 
 func (u *userApp) SendSms(ctx context.Context, req entity.SendSmsReq) error {

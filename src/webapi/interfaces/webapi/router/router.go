@@ -15,6 +15,7 @@ var (
 	wx   *controller.WX
 	user *controller.User
 	msg  *controller.Message
+	tmpl *controller.Tmpl
 )
 
 func registerController() {
@@ -24,6 +25,8 @@ func registerController() {
 		repository.DefaultUserRepository())
 	msg = controller.NewMessageController(
 		repository.DefaultMessageRepository())
+	tmpl = controller.NewTmplController(
+		repository.DefaultTmplRepository())
 }
 
 func New() *gin.Engine {
@@ -45,34 +48,22 @@ func initRouter(router *gin.Engine) {
 	// web
 	routerWeb(root)
 
+	router.Use(middleware.GinContext)
 	api := root.Group("/api/v1/")
 	// wx api
 	routerWX(api)
 	// user info verify and binding
 	routerVerify(api)
-
-	router.Use(middleware.GinContext)
-
 	// msg handler
 	routerMsg(api)
+	// template management api
+	routerTmpl(api)
 }
 
 func routerWeb(open *gin.RouterGroup) {
-	open.Static("/img", "doc/img")
+	open.Static("/doc", "doc/img")
 	open.StaticFile("/favicon.icon", "img/favicon.icon")
 	open.StaticFile("", "doc/static/index.html")
-	// open.GET("/", func(context *gin.Context) {
-	// ts := time.Now().Unix()
-	// nonce := utils.GenRandNonce()
-	// sig := wxutil.CalcSign(fmt.Sprintf("%d", ts), nonce, consts.Token)
-	// context.HTML(http.StatusOK, "doc/index.html", gin.H{
-	//	"app_id":      config.AppID,
-	//	"timestamp":   ts,
-	//	"nonce_str":   nonce,
-	//	"signature":   sig,
-	//	"js_api_list": []string{""},
-	// })
-	// })
 }
 
 func routerWX(router *gin.RouterGroup) {
@@ -108,5 +99,12 @@ func routerMsg(router *gin.RouterGroup) {
 		{
 			statusSubGroup.GET("/:id", msg.TmplMsgStatus)
 		}
+	}
+}
+
+func routerTmpl(router *gin.RouterGroup) {
+	tmplGroup := router.Group("/tmpl")
+	{
+		tmplGroup.GET("", tmpl.ListTemplate)
 	}
 }

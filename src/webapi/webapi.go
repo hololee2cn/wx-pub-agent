@@ -7,6 +7,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/hololee2cn/pkg/extra"
+	"github.com/hololee2cn/wxpub/v1/src/pkg/httpx"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
@@ -14,9 +16,6 @@ import (
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/interfaces/webapi/router"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/tasks"
-
-	"github.com/hololee2cn/pkg/extra"
-	"github.com/hololee2cn/wxpub/v1/src/pkg/httpx"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -99,5 +98,7 @@ func InitService() (func(), error) {
 		persistence.DefaultUserRepo(), persistence.DefaultPhoneVerifyRepo())
 	repository.NewMessageRepository(
 		persistence.DefaultMessageRepo(), persistence.DefaultUserRepo())
+	repository.NewTmplRepository(
+		persistence.DefaultTmplRepo())
 	return cleanFunc, nil
 }

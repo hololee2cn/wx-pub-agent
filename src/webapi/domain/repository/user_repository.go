@@ -4,12 +4,11 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hololee2cn/wxpub/v1/src/utils"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
-
-	"github.com/hololee2cn/wxpub/v1/src/utils"
 )
 
 type UserRepository struct {
@@ -46,6 +45,10 @@ func (a *UserRepository) GenCaptcha(ctx context.Context, width int32, height int
 
 func (a *UserRepository) VerifyCaptcha(ctx context.Context, captchaID string, captchaAnswer string) (bool, error) {
 	return a.phoneVerify.VerifyCaptcha(ctx, captchaID, captchaAnswer)
+}
+
+func (a *UserRepository) VerifyPhone(ctx context.Context, phone string) (bool, error) {
+	return a.user.IsExistPhone(ctx, phone)
 }
 
 func (a *UserRepository) SendSms(ctx context.Context, req entity.SendSmsReq) error {

@@ -4,23 +4,18 @@ import (
 	"fmt"
 	oslog "log"
 	"os"
-
-	"google.golang.org/grpc/credentials/insecure"
-
-	redis3 "github.com/hololee2cn/wxpub/v1/src/pkg/redis"
-
-	"gorm.io/gorm/logger"
-
 	"time"
-
-	"gorm.io/gorm"
 
 	"github.com/go-redis/redis/v7"
 	captchaPb "github.com/hololee2cn/captcha/pkg/grpcIFace"
 	smsPb "github.com/hololee2cn/sms-xuanwu/pkg/grpcIFace"
+	redis3 "github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Repositories struct {
@@ -61,6 +56,7 @@ func NewRepositories(DBConfig DBConfig, redisAddresses []string, smsRPCAddr, cap
 	NewUserRepo()
 	NewWxRepo()
 	NewPhoneVerifyRepo()
+	NewTmplRepo()
 
 	// release all the resources
 	return func() {
