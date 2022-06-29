@@ -61,8 +61,8 @@ func initRouter(router *gin.Engine) {
 }
 
 func routerWeb(open *gin.RouterGroup) {
-	open.Static("/doc", "doc/img")
-	open.StaticFile("/favicon.icon", "img/favicon.icon")
+	open.Static("/static", "doc/img")
+	open.StaticFile("/favicon.icon", "static/favicon.icon")
 	open.StaticFile("", "doc/static/index.html")
 }
 
