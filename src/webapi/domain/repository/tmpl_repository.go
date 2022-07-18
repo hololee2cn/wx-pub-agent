@@ -37,7 +37,7 @@ func (t *TmplRepository) ListTemplate(ctx context.Context) (entity.ListTmplResp,
 	}
 	tmplResp, err := t.FreshTemplate(ctx)
 	if err != nil {
-		log.Errorf("TmplRepository StoreAndGetTmpl failed,traceID:%s,err:%+v", traceID, err)
+		log.Errorf("TmplRepository FreshTemplate failed,traceID:%s,err:%+v", traceID, err)
 		ginx.CustomErr(err)
 	}
 	return tmplResp, nil
@@ -54,7 +54,7 @@ func (t *TmplRepository) GetTemplate(ctx context.Context, templateID string) (*e
 	}
 	tmplResp, err := t.FreshTemplate(ctx)
 	if err != nil {
-		log.Errorf("TmplRepository StoreAndGetTmpl failed,traceID:%s,err:%+v", traceID, err)
+		log.Errorf("TmplRepository FreshTemplate failed,traceID:%s,err:%+v", traceID, err)
 		ginx.CustomErr(err)
 	}
 	return t.findTmplByID(tmplResp.Lists, templateID)

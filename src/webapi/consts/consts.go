@@ -8,18 +8,6 @@ type ServerMode string
 
 type MsgType string
 
-type contextKey string
-
-func (c contextKey) String() string {
-	return string(c)
-}
-
-const (
-	GinContextContext = "context" // GinContextContext 存在 gin context 中的标准库 context 实例的 key
-	HTTPTraceIDHeader = "x-nova-trace-id"
-	ContextTraceID    = contextKey(HTTPTraceIDHeader)
-)
-
 const (
 	ServerModeDebug   ServerMode = gin.DebugMode
 	ServerModeRelease ServerMode = gin.ReleaseMode
