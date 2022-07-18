@@ -16,13 +16,13 @@ var _ MessageInterface = &messageApp{}
 
 type MessageInterface interface {
 	SendTmplMsg(ctx context.Context, param entity.SendTmplMsgReq) (entity.SendTmplMsgResp, error)
-	TmplMsgStatus(ctx context.Context, requestID string) (entity.TmplMsgStatusResp, error)
+	TmplMsgStatus(ctx context.Context, requestID string) (*entity.TmplMsgStatusResp, error)
 }
 
 func (u *messageApp) SendTmplMsg(ctx context.Context, param entity.SendTmplMsgReq) (entity.SendTmplMsgResp, error) {
 	return u.message.SendTmplMsg(ctx, param)
 }
 
-func (u *messageApp) TmplMsgStatus(ctx context.Context, requestID string) (entity.TmplMsgStatusResp, error) {
+func (u *messageApp) TmplMsgStatus(ctx context.Context, requestID string) (*entity.TmplMsgStatusResp, error) {
 	return u.message.TmplMsgStatus(ctx, requestID)
 }

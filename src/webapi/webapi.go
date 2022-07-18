@@ -64,7 +64,7 @@ func initialize(ctx context.Context) (func(), error) {
 		return nil, err
 	}
 	// task start
-	tasks.ConsumerTask(ctx)
+	tasks.CronTasks(ctx)
 
 	engine := router.New()
 	httpClean := httpx.Init(config.ListenAddr, engine)

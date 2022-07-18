@@ -135,7 +135,7 @@ func (rl *RLock) WatchDog() {
 			if err != nil {
 				log.Errorf("WatchDog watchdog failed,err:%+v", err)
 			}
-			log.Infof("WatchDog redis lock!!! resp is %+v", resp)
+			log.Debugf("WatchDog redis lock!!! resp is %+v", resp)
 		}
 	}
 }

@@ -1,8 +1,8 @@
 <head>
-  <meta charSet="utf-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
-        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossOrigin="anonymous">
+        integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
   <script src="http://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
   <script>
     var captcha_id = "";
@@ -13,11 +13,15 @@
       ajax.open("GET", "/api/v1/user/captcha", true);
       ajax.send(null);
       ajax.onreadystatechange = function () {
-        if (ajax.readyState === 4 && ajax.status === 200) {
-          console.log("request succ");
-          var resp = JSON.parse(ajax.responseText);
-          captcha_id = resp.dat.captcha_id;
-          document.getElementById("img-verify-code").src = resp.dat.captcha_base_64_value;
+        if (ajax.readyState === 4) {
+          if (ajax.status === 200) {
+            console.log("request succ");
+            var resp = JSON.parse(ajax.responseText);
+            captcha_id = resp.dat.captcha_id;
+            document.getElementById("img-verify-code").src = resp.dat.captcha_base_64_value;
+          } else {
+            alert("获取验证码失败，请稍后再试");
+          }
         }
       }
     }
@@ -29,6 +33,10 @@
     function on_click_send_sms_code() {
       var verify_code = document.getElementById("txt-verify-code").value;
       var phone_num = document.getElementById("txt-phone-number").value;
+      if (phone_num.length < 11) {
+        alert("请填写正确的手机号码");
+        return;
+      }
       var ajax = new XMLHttpRequest();
       ajax.open("POST", "/api/v1/user/send-sms", true);
       ajax.send(JSON.stringify({
@@ -38,8 +46,17 @@
         "open_id": window.location.hash.substr(1),
       }));
       ajax.onreadystatechange = function () {
-        if (ajax.readyState === 4 && ajax.status === 200) {
-          console.log("sms code sent");
+        if (ajax.readyState === 4) {
+          if (ajax.status === 200) {
+            alert("短信验证码已发送，请注意查收");
+          } else if (ajax.status === 403) {
+            alert("验证码错误");
+            refresh_verify_code();
+          } else if (ajax.status === 409) {
+            alert("该手机号码已存在");
+          } else {
+            alert("短信验证码发送失败，请稍后再试");
+          }
         }
       }
     }
@@ -55,9 +72,13 @@
         "open_id": window.location.hash.substr(1)
       }));
       ajax.onreadystatechange = function () {
-        if (ajax.readyState === 4 && ajax.status === 200) {
-          console.log("submited");
-          alert("绑定成功");
+        if (ajax.readyState === 4) {
+          if (ajax.status === 200) {
+            console.log("submited");
+            alert("已成功绑定手机号:" + phone_num + "");
+          } else {
+            alert("绑定失败，请确认短信验证码是否正确或稍后再试")
+          }
         }
       }
     }
@@ -68,28 +89,28 @@
 </head>
 
 <body>
-<div className="container">
-  <div className="page-header">
-    <img src="/static/logo.png" alt="logo" className="img-rounded">
+<div class="container">
+  <div class="page-header">
+    <img src="/static/logo.png" alt="logo" class="img-rounded">
   </div>
   <h3> 绑定手机号 </h3>
   <p>
-  <div className="input-group">
-    <img id="img-verify-code" width="150px" height="50px" onClick="on_click_img_verify_code()"/>
-    <input type="text" className="form-control" placeholder="验证码" id="txt-verify-code">
+  <div class="input-group">
+    <img id="img-verify-code" width="150px" height="50px" onclick="on_click_img_verify_code()"/>
+    <input type="text" class="form-control" placeholder="验证码" id="txt-verify-code">
   </div>
   <p>
-  <div className="input-group">
-    <input type="number" className="form-control" placeholder="手机号码" id="txt-phone-number">
-    <span className="input-group-btn">
-        <button className="btn btn-default" type="button" onClick="on_click_send_sms_code()">发送短信验证码</button>
+  <div class="input-group">
+    <input type="number" class="form-control" placeholder="手机号码" id="txt-phone-number">
+    <span class="input-group-btn">
+        <button class="btn btn-default" type="button" onclick="on_click_send_sms_code()">发送短信验证码</button>
       </span>
   </div>
   <p>
-  <div className="input-group">
-    <input type="number" className="form-control" placeholder="短信验证码" id="txt-sms-code">
-    <span className="input-group-btn">
-         <button className="btn btn-default" type="button" onClick="on_click_submit()">提交</button>
+  <div class="input-group">
+    <input type="number" class="form-control" placeholder="短信验证码" id="txt-sms-code">
+    <span class="input-group-btn">
+         <button class="btn btn-default" type="button" onclick="on_click_submit()">提交</button>
       </span>
   </div>
 </div>

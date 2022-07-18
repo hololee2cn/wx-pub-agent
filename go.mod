@@ -9,18 +9,18 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/hololee2cn/captcha/pkg/grpcIFace v0.0.0-20220610082308-d9a8234ac006
-	github.com/hololee2cn/pkg v0.0.0-20220615092301-cef103e88c3c
+	github.com/hololee2cn/pkg v0.0.0-20220718033840-8fb040c3cd1c
 	github.com/hololee2cn/sms-xuanwu/pkg/grpcIFace v0.0.0-20220610084208-c3977e308b65
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.7.2
-	github.com/stretchr/testify v1.7.4
-	github.com/urfave/cli/v2 v2.10.2
-	google.golang.org/grpc v1.47.0
+	github.com/stretchr/testify v1.8.0
+	github.com/urfave/cli/v2 v2.11.0
+	google.golang.org/grpc v1.48.0
 	google.golang.org/protobuf v1.28.0
-	gorm.io/driver/mysql v1.3.4
-	gorm.io/gorm v1.23.6
+	gorm.io/driver/mysql v1.3.5
+	gorm.io/gorm v1.23.8
 )
 
 require (
@@ -37,7 +37,7 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.3.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
-	github.com/jinzhu/now v1.1.4 // indirect
+	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect

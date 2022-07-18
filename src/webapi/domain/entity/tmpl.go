@@ -1,5 +1,7 @@
 package entity
 
+import "github.com/hololee2cn/wxpub/v1/src/webapi/config"
+
 // ListTmplResp 模板消息状态返回
 type ListTmplResp struct {
 	Lists []ListTmplItem `json:"lists"`
@@ -27,16 +29,41 @@ type TemplateItem struct {
 	Example         string `json:"example"`
 }
 
+// GetTemplateReq 模板内容请求
+type GetTemplateReq struct {
+	TemplateID string `json:"template_id"`
+}
+
+// FreshTemplateReq 刷新模板请求
+type FreshTemplateReq struct {
+	AppID     string `json:"app_id"`
+	AppSecret string `json:"app_secret"`
+}
+
 func (m *TemplateList) TransferListTmplResp() ListTmplResp {
 	var ret ListTmplResp
 	for _, v := range m.TemplateList {
-		ret.Lists = append(ret.Lists, ListTmplItem{
-			TemplateID: v.TemplateID,
-			Title:      v.Title,
-			Content:    v.Content,
-			Example:    v.Example,
-		})
+		ret.Lists = append(ret.Lists, *v.TransferListTmplItem())
 	}
 	ret.Total = len(m.TemplateList)
 	return ret
+}
+
+func (m *TemplateItem) TransferListTmplItem() *ListTmplItem {
+	return &ListTmplItem{
+		TemplateID: m.TemplateID,
+		Title:      m.Title,
+		Content:    m.Content,
+		Example:    m.Example,
+	}
+}
+
+func (f *FreshTemplateReq) Validate() (errMsg string) {
+	if f.AppID != config.AppID {
+		errMsg = "appid is not right"
+	}
+	if f.AppSecret != config.AppSecret {
+		errMsg = "app secret is not right"
+	}
+	return
 }

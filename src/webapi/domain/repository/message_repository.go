@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/hololee2cn/pkg/ginx"
 	"github.com/hololee2cn/wxpub/v1/src/utils"
@@ -35,6 +36,11 @@ func (t *MessageRepository) SendTmplMsg(ctx context.Context, param entity.SendTm
 	log.Debugf("SendTmplMsg traceID:%s", traceID)
 	var resp entity.SendTmplMsgResp
 	var err error
+	// 序列化content
+	bs, err := json.Marshal(param.Data)
+	if err != nil {
+		return entity.SendTmplMsgResp{}, err
+	}
 	// 生成request id
 	requestID, err := utils.GetUUID()
 	if err != nil {
@@ -47,16 +53,18 @@ func (t *MessageRepository) SendTmplMsg(ctx context.Context, param entity.SendTm
 		log.Errorf("SendTmplMsg ListUserByPhones failed,traceID:%s,err:%+v", traceID, err)
 		return entity.SendTmplMsgResp{}, err
 	}
-	userPhoneMap := make(map[string]entity.User)
+	userPhoneMap := make(map[string][]entity.User)
 	for _, user := range users {
-		userPhoneMap[user.Phone] = user
+		userPhoneMap[user.Phone] = append(userPhoneMap[user.Phone], user)
 	}
 	msgLogs := make([]entity.MsgLog, 0)
 	for _, phone := range param.Phones {
-		if user, ok := userPhoneMap[phone]; ok {
-			msgLogs = append(msgLogs, param.TransferPendingMsgLog(requestID, user.OpenID, user.Phone))
+		if us, ok := userPhoneMap[phone]; ok {
+			for _, user := range us {
+				msgLogs = append(msgLogs, param.TransferPendingMsgLog(requestID, user.OpenID, user.Phone, string(bs)))
+			}
 		} else {
-			msgLogs = append(msgLogs, param.TransferFailureMsgLog(requestID, "", phone))
+			msgLogs = append(msgLogs, param.TransferFailureMsgLog(requestID, "", phone, string(bs)))
 		}
 	}
 	// 消息批量存入db
@@ -68,7 +76,7 @@ func (t *MessageRepository) SendTmplMsg(ctx context.Context, param entity.SendTm
 	return resp, nil
 }
 
-func (t *MessageRepository) TmplMsgStatus(ctx context.Context, requestID string) (entity.TmplMsgStatusResp, error) {
+func (t *MessageRepository) TmplMsgStatus(ctx context.Context, requestID string) (*entity.TmplMsgStatusResp, error) {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("TmplMsgStatus traceID:%s", traceID)
 	var resp entity.TmplMsgStatusResp
@@ -78,16 +86,22 @@ func (t *MessageRepository) TmplMsgStatus(ctx context.Context, requestID string)
 	count, err = t.msg.ListMsgLogsByReqIDCnt(ctx, requestID)
 	if err != nil {
 		log.Errorf("TmplMsgStatus ListMsgLogsByReqIDCnt failed,traceID:%s,err:%+v", traceID, err)
-		return entity.TmplMsgStatusResp{}, err
+		return &entity.TmplMsgStatusResp{}, err
 	}
 	items, err := t.msg.ListMsgLogsByReqID(ctx, requestID)
 	if err != nil {
 		log.Errorf("TmplMsgStatus ListMsgLogsByRequestID failed,traceID:%s,err:%+v", traceID, err)
-		return entity.TmplMsgStatusResp{}, err
+		return &entity.TmplMsgStatusResp{}, err
 	}
 	for _, item := range items {
-		resp.Lists = append(resp.Lists, item.TransferTmplMsgStatusItem())
+		var statusItem entity.TmplMsgStatusItem
+		statusItem, err = item.TransferTmplMsgStatusItem()
+		if err != nil {
+			log.Errorf("TmplMsgStatus TransferTmplMsgStatusItem failed,traceID:%s,err:%v", traceID, err)
+			return &entity.TmplMsgStatusResp{}, err
+		}
+		resp.Lists = append(resp.Lists, statusItem)
 	}
 	resp.Total = int(count)
-	return resp, nil
+	return &resp, nil
 }

@@ -8,6 +8,18 @@ type ServerMode string
 
 type MsgType string
 
+type contextKey string
+
+func (c contextKey) String() string {
+	return string(c)
+}
+
+const (
+	GinContextContext = "context" // GinContextContext 存在 gin context 中的标准库 context 实例的 key
+	HTTPTraceIDHeader = "x-nova-trace-id"
+	ContextTraceID    = contextKey(HTTPTraceIDHeader)
+)
+
 const (
 	ServerModeDebug   ServerMode = gin.DebugMode
 	ServerModeRelease ServerMode = gin.ReleaseMode
@@ -35,15 +47,19 @@ const (
 	Module                  = "wx-public-proxy"
 	DLockPrefix             = "__dlock-"
 	RedisKeyAccessToken     = Module + "-access_token"
+	RedisKeyTmpl            = Module + "-tmpl"
 	RedisLockAccessToken    = DLockPrefix + RedisKeyAccessToken
 	RedisKeyMsgID           = Module + "-msg_id-"
 	RedisKeyPrefixChallenge = Module + "-challenge_"
+
+	RedisLockTask = DLockPrefix + "task"
 )
 
 const (
 	RedisMsgIDTTL             = 30
 	RedisAuthTTL              = 300
-	VerifyCodeSmsChallengeTTL = 1800 // 验证短信时候期限设置为30分钟，期间可以重发短信
+	VerifyCodeSmsChallengeTTL = 1800      // 验证短信时候期限设置为30分钟，期间可以重发短信
+	RedisTmplTTL              = 3600 * 24 // 模板缓存时间为1天
 )
 
 const (
