@@ -98,8 +98,10 @@ func (a *UserRepo) SaveUser(ctx context.Context, user entity.User, isUpdateAll b
 func (a *UserRepo) DelUser(ctx context.Context, user entity.User) error {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("DelUser traceID:%s", traceID)
-	user.DeleteTime = time.Now().Unix()
-	if err := a.DB.Model(&entity.User{}).Where("open_id = ?", user.OpenID).Updates(&user).Error; err != nil {
+	if err := a.DB.Model(&entity.User{}).Where("open_id = ?", user.OpenID).Updates(map[string]interface{}{
+		"phone":       "",
+		"delete_time": time.Now().Unix(),
+	}).Error; err != nil {
 		log.Errorf("DelUser delete user failed,traceID:%s,err:%+v", traceID, err)
 		return err
 	}
@@ -132,7 +134,7 @@ func (a *UserRepo) GetUserByOpenID(ctx context.Context, openID string) (user ent
 func (a *UserRepo) ListUserByPhones(ctx context.Context, phones []string) (users []entity.User, err error) {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("ListUserByPhones traceID:%s", traceID)
-	if err = a.DB.Where("phone IN (?)", phones).Find(&users).Error; err != nil {
+	if err = a.DB.Where("phone IN (?) AND delete_time = 0", phones).Find(&users).Error; err != nil {
 		log.Errorf("ListUserByPhones get list user by phones failed,traceID:%s,err:%+v", traceID, err)
 		return
 	}

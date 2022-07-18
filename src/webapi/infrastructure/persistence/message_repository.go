@@ -159,7 +159,7 @@ func (a *MessageRepo) ListPendingMsgLogs(ctx context.Context) ([]entity.MsgLog, 
 	return msgLogs, err
 }
 
-func (a *MessageRepo) UpdateMaxRetryCntMsgLogs(ctx context.Context) error {
+func (a *MessageRepo) UpdateMaxRetryCntMsgLogsStatus(ctx context.Context) error {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("UpdateMaxRetryCntMsgLogsStatus traceID:%s", traceID)
 	err := a.DB.Model(&entity.MsgLog{}).Where("status = ? AND count >= ?", consts.SendPending, consts.MaxRetryCount).Updates(map[string]interface{}{
@@ -173,7 +173,7 @@ func (a *MessageRepo) UpdateMaxRetryCntMsgLogs(ctx context.Context) error {
 	return nil
 }
 
-func (a *MessageRepo) UpdateTimeoutMsgLogs(ctx context.Context) error {
+func (a *MessageRepo) UpdateTimeoutMsgLogsStatus(ctx context.Context) error {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("UpdateTimeoutMsgLogsStatus traceID:%s", traceID)
 	err := a.DB.Model(&entity.MsgLog{}).Where("status = ? AND count >= ? AND create_time <= ?", consts.Sending, consts.MaxRetryCount, time.Now().Unix()-consts.MaxWXCallBackTime).

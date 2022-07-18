@@ -106,5 +106,7 @@ func routerTmpl(router *gin.RouterGroup) {
 	tmplGroup := router.Group("/tmpl")
 	{
 		tmplGroup.GET("", tmpl.ListTemplate)
+		tmplGroup.GET("/:id", tmpl.GetTemplate)
+		tmplGroup.POST("/fresh", tmpl.FreshTemplate)
 	}
 }

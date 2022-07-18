@@ -14,9 +14,25 @@ type SendTmplMsgReq struct {
 	// 接收者手机号
 	Phones []string `json:"phones"`
 	// 模板数据
-	Data json.RawMessage `json:"data"`
+	Data MsgData `json:"data"`
 	// 跳转详情url
 	URL string `json:"url"`
+}
+
+// MsgData 微信模板Data，微信规定最多只有5个keyword
+type MsgData struct {
+	First    DataItem `json:"first"`
+	Keyword1 DataItem `json:"keyword1"`
+	Keyword2 DataItem `json:"keyword2"`
+	Keyword3 DataItem `json:"keyword3"`
+	Keyword4 DataItem `json:"keyword4"`
+	Keyword5 DataItem `json:"keyword5"`
+	Remark   DataItem `json:"remark"`
+}
+
+type DataItem struct {
+	Value string `json:"value"`
+	Color string `json:"color"`
 }
 
 type SendTmplMsgResp struct {
@@ -43,7 +59,7 @@ type TmplMsgStatusItem struct {
 	// 模板id
 	TemplateID string `json:"template_id"`
 	// 发送模板内容
-	Content json.RawMessage `json:"content"`
+	Content MsgData `json:"content"`
 	// 跳转详情url
 	URL string `json:"url"`
 	// 失败原因
@@ -62,7 +78,7 @@ type SendTmplMsgRemoteReq struct {
 	// 模板ID
 	TemplateID string `json:"template_id"`
 	// 模板数据
-	Data json.RawMessage `json:"data"`
+	Data MsgData `json:"data"`
 	// 跳转详情url
 	URL string `json:"url"`
 }
@@ -87,7 +103,7 @@ type MsgLog struct {
 	// 模板id
 	TemplateID string `json:"template_id" gorm:"template_id"`
 	// 发送模板内容
-	Content json.RawMessage `json:"content" gorm:"content"`
+	Content string `json:"content" gorm:"content"`
 	// 跳转详情url
 	URL string `json:"url" gorm:"url"`
 	// 失败原因
@@ -113,26 +129,36 @@ func (m MsgLog) TableName() string {
 	return "msg_log"
 }
 
-func (m *MsgLog) TransferSendTmplMsgRemoteReq() SendTmplMsgRemoteReq {
+func (m *MsgLog) TransferSendTmplMsgRemoteReq() (SendTmplMsgRemoteReq, error) {
+	var wxContent MsgData
+	err := json.Unmarshal([]byte(m.Content), &wxContent)
+	if err != nil {
+		return SendTmplMsgRemoteReq{}, err
+	}
 	return SendTmplMsgRemoteReq{
 		ToUser:     m.ToUser,
 		TemplateID: m.TemplateID,
-		Data:       m.Content,
+		Data:       wxContent,
 		URL:        m.URL,
-	}
+	}, nil
 }
 
-func (m *MsgLog) TransferTmplMsgStatusItem() TmplMsgStatusItem {
+func (m *MsgLog) TransferTmplMsgStatusItem() (TmplMsgStatusItem, error) {
+	var wxContent MsgData
+	err := json.Unmarshal([]byte(m.Content), &wxContent)
+	if err != nil {
+		return TmplMsgStatusItem{}, err
+	}
 	return TmplMsgStatusItem{
 		ID:         m.ID,
 		Phone:      m.Phone,
 		TemplateID: m.TemplateID,
-		Content:    m.Content,
+		Content:    wxContent,
 		URL:        m.URL,
 		Cause:      m.Cause,
 		Status:     m.Status,
 		CreateTime: m.CreateTime,
-	}
+	}, nil
 }
 
 func (r *SendTmplMsgReq) Validate() (errorMsg string) {
@@ -148,17 +174,18 @@ func (r *SendTmplMsgReq) Validate() (errorMsg string) {
 	r.Phones = utils.RemoveStringRepeated(r.Phones)
 	if len(r.Phones) > 100 {
 		errorMsg = "the phones slice is too long"
+		return
 	}
 	return
 }
 
-func (r *SendTmplMsgReq) TransferPendingMsgLog(requestID string, toUser string, phone string) MsgLog {
+func (r *SendTmplMsgReq) TransferPendingMsgLog(requestID string, toUser string, phone string, content string) MsgLog {
 	return MsgLog{
 		RequestID:  requestID,
 		ToUser:     toUser,
 		Phone:      phone,
 		TemplateID: r.TmplMsgID,
-		Content:    r.Data,
+		Content:    content,
 		URL:        r.URL,
 		Cause:      "",
 		Status:     consts.SendPending,
@@ -168,13 +195,13 @@ func (r *SendTmplMsgReq) TransferPendingMsgLog(requestID string, toUser string, 
 	}
 }
 
-func (r *SendTmplMsgReq) TransferFailureMsgLog(requestID string, toUser string, phone string) MsgLog {
+func (r *SendTmplMsgReq) TransferFailureMsgLog(requestID string, toUser string, phone string, content string) MsgLog {
 	return MsgLog{
 		RequestID:  requestID,
 		ToUser:     toUser,
 		Phone:      phone,
 		TemplateID: r.TmplMsgID,
-		Content:    r.Data,
+		Content:    content,
 		URL:        r.URL,
 		Cause:      "",
 		Status:     consts.SendFailure,
