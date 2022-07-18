@@ -15,7 +15,7 @@ func SyncTemplates(ctx context.Context) {
 	default:
 		_, err := repository.DefaultTmplRepository().FreshTemplate(ctx)
 		if err != nil {
-			log.Errorf("SyncTemplates StoreAndGetTmpl failed,err:%+v", err)
+			log.Errorf("SyncTemplates FreshTemplate failed,err:%+v", err)
 		}
 	}
 }
