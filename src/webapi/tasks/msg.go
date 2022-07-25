@@ -45,8 +45,8 @@ func HandleMsg(ctx context.Context) {
 				defer func() {
 					g.Done()
 					<-maxMsgChan
-					handlePerMsg(ctx, msgLog)
 				}()
+				handlePerMsg(ctx, msgLog)
 			}(msgLog)
 		}
 	}
