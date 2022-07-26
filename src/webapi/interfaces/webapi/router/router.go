@@ -78,11 +78,12 @@ func routerWX(router *gin.RouterGroup) {
 }
 
 func routerVerify(router *gin.RouterGroup) {
-	smsProfileGroup := router.Group("/user")
+	userProfileGroup := router.Group("/user")
 	{
-		smsProfileGroup.POST("/send-sms", user.SendSms)
-		smsProfileGroup.POST("/verify-sms", user.VerifyAndUpdatePhone)
-		smsProfileGroup.GET("/captcha", user.GenCaptcha)
+		userProfileGroup.POST("/send-sms", user.SendSms)
+		userProfileGroup.POST("/verify-sms", user.VerifyAndUpdatePhone)
+		userProfileGroup.GET("/captcha", user.GenCaptcha)
+		userProfileGroup.POST("/verify-phone", user.VerifyPhone)
 	}
 }
 

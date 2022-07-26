@@ -33,3 +33,8 @@ type CaptchaResp struct {
 	// 验证码，返回验证码Base64值
 	CaptchaBase64Value string `json:"captcha_base_64_value"`
 }
+
+type VerifyPhoneReq struct {
+	// 目标手机号
+	Phone string `json:"phone"`
+}
