@@ -135,3 +135,28 @@ func (u *User) VerifyAndUpdatePhone(c *gin.Context) {
 	}
 	ginx.NewRender(c).Message(nil)
 }
+
+func (u *User) VerifyPhone(c *gin.Context) {
+	ctx := ginx.DefaultTodoContext(c)
+	traceID := ginx.ShouldGetTraceID(ctx)
+	log.Debugf("%s", traceID)
+
+	var req entity.VerifyPhoneReq
+	ginx.BindJSON(c, &req)
+
+	if utils.VerifyMobilePhoneFormat(req.Phone) {
+		log.Errorf("invalid phone number: %s, traceID:%s", req.Phone, traceID)
+		ginx.BombErr(errorx.CodeInvalidParams, "invalid phone number")
+	}
+
+	exist, err := u.user.VerifyPhone(ctx, req.Phone)
+	if err != nil {
+		log.Errorf("VerifyPhone failed, traceID:%s, err:%+v", traceID, err)
+		ginx.CustomErr(err)
+	}
+	if !exist {
+		log.Errorf("not exist phone:%s", req.Phone)
+		ginx.BombErr(errorx.CodeResourcesNotFount, "phone is not exist")
+	}
+	ginx.NewRender(c).Message(nil)
+}
