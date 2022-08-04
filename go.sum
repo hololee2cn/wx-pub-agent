@@ -214,8 +214,8 @@ github.com/hashicorp/memberlist v0.1.3/go.mod h1:ajVTdAv/9Im8oMAAj5G31PhhMCZJV2p
 github.com/hashicorp/serf v0.8.2/go.mod h1:6hOLApaqBFA1NXqRQAsxw9QxuDEvNxSQRwA/JwenrHc=
 github.com/hololee2cn/captcha/pkg/grpcIFace v0.0.0-20220610082308-d9a8234ac006 h1:gK43O3hKR0mrwcfo7pg7jC/qqdFLJ4dPSI1A2a+kp/A=
 github.com/hololee2cn/captcha/pkg/grpcIFace v0.0.0-20220610082308-d9a8234ac006/go.mod h1:21ZiqQvcgBwxBl/uXIfEFdmiTdHC7395zzc06pJKcTQ=
-github.com/hololee2cn/pkg v0.0.0-20220718033840-8fb040c3cd1c h1:8O8/5uDHpoYD+aM/L1w8K3EjkIHgwGsUgSJ4EHfbW8I=
-github.com/hololee2cn/pkg v0.0.0-20220718033840-8fb040c3cd1c/go.mod h1:W4O8Azz3AbQu8wvGIca5ZrlvhO20wlzFGrLveCXYtDA=
+github.com/hololee2cn/pkg v0.0.0-20220804084442-c844e6aa1d0e h1:x2+2S25hhVt1V7iOyLv1YaApxOuG5uF9G+5OVqe9xvc=
+github.com/hololee2cn/pkg v0.0.0-20220804084442-c844e6aa1d0e/go.mod h1:W4O8Azz3AbQu8wvGIca5ZrlvhO20wlzFGrLveCXYtDA=
 github.com/hololee2cn/sms-xuanwu/pkg/grpcIFace v0.0.0-20220610084208-c3977e308b65 h1:wz49siIscyBgLRgQBmWEO2NqRftcez/GJNccqrHY430=
 github.com/hololee2cn/sms-xuanwu/pkg/grpcIFace v0.0.0-20220610084208-c3977e308b65/go.mod h1:LfaSpHRKYaGNWvdBTpHn+6LrLowMwjSbsNsD7TGMtbA=
 github.com/hpcloud/tail v1.0.0 h1:nfCOvKYfkgYP8hkirhJocXT2+zOD8yUNjXaWfTlyFKI=

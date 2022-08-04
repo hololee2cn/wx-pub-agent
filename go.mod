@@ -9,7 +9,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/hololee2cn/captcha/pkg/grpcIFace v0.0.0-20220610082308-d9a8234ac006
-	github.com/hololee2cn/pkg v0.0.0-20220718033840-8fb040c3cd1c
+	github.com/hololee2cn/pkg v0.0.0-20220804084442-c844e6aa1d0e
 	github.com/hololee2cn/sms-xuanwu/pkg/grpcIFace v0.0.0-20220610084208-c3977e308b65
 	github.com/mojocn/base64Captcha v1.3.5
 	github.com/patrickmn/go-cache v2.1.0+incompatible
