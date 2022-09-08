@@ -76,29 +76,30 @@ func initialize(ctx context.Context) (func(), error) {
 }
 
 func InitService() (func(), error) {
-	debugMode := config.SMode == consts.ServerModeDebug
-	dbConf := persistence.DBConfig{
+	dbConf := persistence.DBCfg{
 		DBUser:      config.DBUser,
 		DBPassword:  config.DBPassword,
 		DBHost:      config.DBHost,
 		DBName:      config.DBName,
 		MaxIdleConn: config.DBMaxIdleConn,
 		MaxOpenConn: config.DBMaxOpenConn,
+		DebugMode:   config.SMode == consts.ServerModeDebug,
 	}
-	cleanFunc, err := persistence.NewRepositories(dbConf, config.RedisAddresses, config.SmsRPCAddr, config.CaptchaRPCAddr, debugMode)
+	var err error
+	cleanFunc, err := persistence.NewRepositories(
+		persistence.NewDBRepositories(dbConf),
+		persistence.NewRedisRepositories(persistence.RedisCfg{RedisAddr: config.RedisAddresses}),
+		persistence.NewCaptchaGRPCClientRepositories(persistence.CaptchaCfg{CaptchaRPCAddr: config.CaptchaRPCAddr}),
+		persistence.NewSmsGRPCClientRepositories(persistence.SmsCfg{SmsRPCAddr: config.SmsRPCAddr}),
+	)
 	if err != nil {
 		return nil, err
 	}
+	// persistence repo init
+	persistence.NewSingletonRepo()
+
 	// repository init
-	repository.NewWXRepository(
-		persistence.DefaultWxRepo(), persistence.DefaultUserRepo(), persistence.DefaultMessageRepo())
-	repository.NewAccessTokenRepository(
-		persistence.DefaultAkRepo())
-	repository.NewUserRepository(
-		persistence.DefaultUserRepo(), persistence.DefaultPhoneVerifyRepo())
-	repository.NewMessageRepository(
-		persistence.DefaultMessageRepo(), persistence.DefaultUserRepo())
-	repository.NewTmplRepository(
-		persistence.DefaultTmplRepo())
+	repository.NewSingletonRepository()
+
 	return cleanFunc, nil
 }
