@@ -3,7 +3,7 @@ module github.com/hololee2cn/wxpub/v1
 go 1.17
 
 require (
-	bou.ke/monkey v1.0.2
+	github.com/agiledragon/gomonkey/v2 v2.8.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/go-redis/redis/v7 v7.4.1
 	github.com/google/uuid v1.3.0
