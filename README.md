@@ -1,4 +1,4 @@
-# Wxpub
+# Wx-pub-agent
 中文 | [English](https://github.com/hololee2cn/wxpub/blob/master/doc/README_EN.md)
 
 ## 介绍
