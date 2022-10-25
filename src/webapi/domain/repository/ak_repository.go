@@ -4,9 +4,10 @@ import (
 	"context"
 	"time"
 
+	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
+
 	"github.com/hololee2cn/pkg/ginx"
 	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 	log "github.com/sirupsen/logrus"
 )
@@ -57,7 +58,7 @@ func (a *AccessTokenRepository) FreshAccessToken(ctx context.Context) (string, e
 		log.Errorf("FreshAccessToken AccessTokenRepository GetAccessToken failed,traceID:%s,err:%+v", traceID, err)
 	}
 	// redis lock for access token to avoid racing to cover ak value from redis
-	rLock := redis.NewRLock(*a.ak.Redis, consts.RedisLockAccessToken)
+	rLock := redis.NewRLock(*a.ak.Redis, config.RedisLockAccessToken)
 	// init redis lock time 2 seconds
 	rLock.SetExpire(2)
 	var ok bool

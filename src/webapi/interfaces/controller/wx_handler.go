@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hololee2cn/pkg/ginx"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/application"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
+	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/wxutil"
 	log "github.com/sirupsen/logrus"
@@ -24,7 +24,7 @@ func (a *WX) GetWXCheckSign(c *gin.Context) {
 	var param entity.WXCheckReq
 	ginx.BindQuery(c, &param)
 	// wx开放平台验证
-	ok := wxutil.CheckSign(param.Signature, wxutil.CalcSign(param.TimeStamp, param.Nonce, consts.Token))
+	ok := wxutil.CheckSign(param.Signature, wxutil.CalcSign(param.TimeStamp, param.Nonce, config.Token))
 	if !ok {
 		log.Infof("wx public platform access failed!")
 		return
@@ -41,7 +41,7 @@ func (a *WX) HandleXML(c *gin.Context) {
 	var param entity.WXCheckReq
 	ginx.BindQuery(c, &param)
 	// wx开放平台验证
-	ok := wxutil.CheckSign(param.Signature, wxutil.CalcSign(param.TimeStamp, param.Nonce, consts.Token))
+	ok := wxutil.CheckSign(param.Signature, wxutil.CalcSign(param.TimeStamp, param.Nonce, config.Token))
 	if !ok {
 		log.Infof("wx public platform access failed!")
 		return

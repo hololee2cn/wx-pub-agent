@@ -6,7 +6,6 @@ import (
 
 	"github.com/hololee2cn/wxpub/v1/src/utils"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 )
@@ -57,12 +56,12 @@ func (a *UserRepository) SendSms(ctx context.Context, req entity.SendSmsReq) err
 	if err != nil {
 		return err
 	}
-
+	const SmsSender = "wx-public-agent"
 	content := fmt.Sprintf(config.SmsContentTemplateCN, verifyCodeAnswer)
-	sender := consts.SmsSender
+	sender := SmsSender
 	return a.phoneVerify.SendSms(ctx, content, sender, req.Phone)
 }
 
 func (a *UserRepository) VerifySmsCode(ctx context.Context, req entity.VerifyCodeReq) (bool, bool, error) {
-	return a.phoneVerify.VerifySmsCode(ctx, req.OpenID+req.Phone, req.VerifyCode, consts.RedisAuthTTL)
+	return a.phoneVerify.VerifySmsCode(ctx, req.OpenID+req.Phone, req.VerifyCode, config.RedisAuthTTL)
 }

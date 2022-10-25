@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/vo"
+
 	"github.com/hololee2cn/wxpub/v1/src/utils"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 )
 
 type SendTmplMsgReq struct {
@@ -188,7 +189,7 @@ func (r *SendTmplMsgReq) TransferPendingMsgLog(requestID string, toUser string, 
 		Content:    content,
 		URL:        r.URL,
 		Cause:      "",
-		Status:     consts.SendPending,
+		Status:     new(vo.MsgStatus).GetPending(),
 		Count:      0,
 		CreateTime: time.Now().Unix(),
 		UpdateTime: 0,
@@ -204,7 +205,7 @@ func (r *SendTmplMsgReq) TransferFailureMsgLog(requestID string, toUser string, 
 		Content:    content,
 		URL:        r.URL,
 		Cause:      "",
-		Status:     consts.SendFailure,
+		Status:     new(vo.MsgStatus).GetFailure(),
 		Count:      0,
 		CreateTime: time.Now().Unix(),
 		UpdateTime: 0,

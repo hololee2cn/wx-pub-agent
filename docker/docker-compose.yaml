@@ -61,18 +61,8 @@ services:
     hostname: pwebapi
     restart: always
     environment:
-      - GIN_MODE=release
       - TZ=Asia/Shanghai
       - WAIT_HOSTS=mysql:3306, redis:6379
-      - redis_addresses=redis:6379
-      - db_user=root
-      - db_password=1234
-      - db_host=mysql:3306
-      - verify_profile_url= # 认证跳转url
-      - captcha_rpc_addr=pcaptcha:50051 # captcha rpc server addr
-      - sms_rpc_addr= # sms rpc server addr
-      - app_id= # wx pub app id
-      - app_secret= # wx pub app secret
     ports:
       - "8100:80"
     networks:

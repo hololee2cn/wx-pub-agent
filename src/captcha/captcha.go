@@ -12,7 +12,7 @@ import (
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/rpc/server"
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/service"
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/store"
-	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/consts"
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/config"
 	me "github.com/hololee2cn/wxpub/v1/src/captcha/internal/errors"
 	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 	"google.golang.org/grpc"
@@ -22,7 +22,7 @@ import (
 )
 
 var (
-	captchaSvc = service.NewDefaultCaptchaSvc(store.NewRedisStore(consts.CaptchaDefaultMaxAge))
+	captchaSvc = service.NewDefaultCaptchaSvc(store.NewRedisStore(config.CaptchaDefaultMaxAge))
 )
 
 // Run run captcha
@@ -59,11 +59,11 @@ EXIT:
 }
 
 func initialize() (func(), error) {
-	consts.Init()
-	extra.Default(log.Level(consts.LogLevel))
+	config.Init()
+	extra.Default(log.Level(config.LogLevel))
 	log.Info("captcha starting...")
 
-	redisClean, _ := redis.NewRedisClient(consts.RedisAddrs)
+	redisClean, _ := redis.NewRedisClient(config.RedisAddrs)
 
 	captchaSvcServer := server.NewCaptchaSvcServer(captchaSvc)
 
@@ -73,7 +73,7 @@ func initialize() (func(), error) {
 			logRequest,
 		)),
 	}
-	rs := server.NewRpcServer(consts.RPCAddr, captchaSvcServer, opts...)
+	rs := server.NewRpcServer(config.RPCAddr, captchaSvcServer, opts...)
 	rs.Start()
 	return func() {
 		redisClean()
@@ -96,7 +96,7 @@ func logRequest(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo
 		log.Errorf("no metadata in context. info: %+v", *info)
 	} else {
 		log.Infof("metadata: %+v", md)
-		if slice := md.Get(consts.KeyTraceID); len(slice) == 0 {
+		if slice := md.Get(config.KeyTraceID); len(slice) == 0 {
 			err := me.NoTraceID(fmt.Sprintf("in metadata: %+v", md))
 			log.Error(err)
 			return nil, err

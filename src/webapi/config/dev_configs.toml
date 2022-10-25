@@ -1,0 +1,34 @@
+[mysql]
+    dbHost = "127.0.0.1:3306"
+    dbUser = "root"
+    dbPassword = "1234"
+    dbName = "pub_platform_mgr"
+    maxIdleConn = 50
+    maxOpenConn = 500
+
+[httpServer]
+    listenAddr = ":80"
+    sMode = "release"
+
+[captchaSvc]
+    rpcAddr = ":50051"
+
+[smsSvc]
+    rpcAddr = ""
+
+[logSvc]
+    logLevel = 4
+
+[wxSvc]
+    appId = ""
+    appSecret = ""
+    baseUrl = "https://api.weixin.qq.com"
+    accessTokenUrl = "https://api.weixin.qq.com/cgi-bin/token"
+    msgTmplSendUrl = "https://api.weixin.qq.com/cgi-bin/message/template/send"
+    listTmplUrl = "https://api.weixin.qq.com/cgi-bin/template/get_all_private_template"
+
+[redis]
+    clusterAddr = "127.0.0.1:6379"
+
+[verifySvc]
+    addr = ""

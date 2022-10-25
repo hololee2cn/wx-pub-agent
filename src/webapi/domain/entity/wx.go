@@ -2,9 +2,9 @@ package entity
 
 import (
 	"encoding/xml"
-
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 )
+
+type MsgType string
 
 type WXCheckReq struct {
 	Signature string `json:"signature" form:"signature"`
@@ -18,7 +18,7 @@ type TextRequestBody struct {
 	ToUserName   string
 	FromUserName string
 	CreateTime   int64
-	MsgType      consts.MsgType
+	MsgType      MsgType
 	Content      string
 	MsgID        int64
 	Event        string

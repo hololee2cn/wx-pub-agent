@@ -5,11 +5,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hololee2cn/wxpub/v1/src/pkg/config"
-	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
-
 	"github.com/google/uuid"
-
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/config"
+	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 	"github.com/stretchr/testify/assert"
 )
 

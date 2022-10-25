@@ -8,10 +8,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/vo"
+
 	"github.com/hololee2cn/pkg/ginx"
 	"github.com/hololee2cn/wxpub/v1/src/utils"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 	log "github.com/sirupsen/logrus"
@@ -22,6 +23,26 @@ type WXRepository struct {
 	user *persistence.UserRepo
 	msg  *persistence.MessageRepo
 }
+
+const (
+	// SubscribeRespContent 关注事件返回内容
+	SubscribeRespContent = "关注成功"
+
+	// UnSubscribeRespContent 取消关注事件返回内容
+	UnSubscribeRespContent = ""
+
+	// TEMPLATESENDJOBFINISHRespContent 模版发送事件返回内容
+	TEMPLATESENDJOBFINISHRespContent = ""
+
+	// TemplateSendSuccessStatus 微信模版发送成功回调内容
+	TemplateSendSuccessStatus = "success"
+
+	// TemplateSendUserBlockStatus 微信模版发送用户阻塞失败回调内容
+	TemplateSendUserBlockStatus = "failed:user block"
+
+	// TemplateSendFailedStatus 微信模版发送系统内部错误失败回调内容
+	TemplateSendFailedStatus = "failed: system failed"
+)
 
 var defaultWXRepository = &WXRepository{}
 
@@ -61,16 +82,23 @@ func (a *WXRepository) HandleXML(ctx context.Context, reqBody *entity.TextReques
 	if reqBody == nil {
 		return nil, fmt.Errorf("xml request body is empty")
 	}
+	const (
+		// Text 文本消息
+		Text entity.MsgType = "text"
+
+		// Event 事件消息
+		Event entity.MsgType = "event"
+	)
 	var responseTextBody []byte
 	var err error
 	switch reqBody.MsgType {
-	case consts.Text:
+	case Text:
 		responseTextBody, err = a.handlerTextXML(ctx, reqBody)
 		if err != nil {
 			log.Errorf("HandleXML handlerTextXML failed traceID:%s,err:%+v", traceID, err)
 			return nil, err
 		}
-	case consts.Event:
+	case Event:
 		responseTextBody, err = a.handlerEventXML(ctx, reqBody)
 		if err != nil {
 			log.Errorf("HandleXML handlerEventXML failed traceID:%s,err:%+v", traceID, err)
@@ -104,23 +132,31 @@ func (a *WXRepository) handlerTextXML(ctx context.Context, reqBody *entity.TextR
 		log.Errorf("handlerTextXML WXRepository wx repo set msg id to redis failed,traceID:%s,err:%+v", traceID, err)
 	}
 	// 用户绑定链接推送
-	return a.makeTextResponseBody(reqBody.ToUserName, reqBody.FromUserName, fmt.Sprintf("%s%s%s%s", consts.SubscribeRespContent, `<a href="`, fmt.Sprintf("%s%s%s", config.VerifyProfileURL, "#", reqBody.FromUserName), `">绑定</a>`))
+	return a.makeTextResponseBody(reqBody.ToUserName, reqBody.FromUserName, fmt.Sprintf("%s%s%s%s", SubscribeRespContent, `<a href="`, fmt.Sprintf("%s%s%s", config.Get().VerifySvc.Addr, "#", reqBody.FromUserName), `">绑定</a>`))
 }
 
 func (a *WXRepository) handlerEventXML(ctx context.Context, reqBody *entity.TextRequestBody) ([]byte, error) {
 	var respContent string
 	var err error
 	// 事件类型
+	const (
+		// SubscribeEvent 订阅事件
+		SubscribeEvent = "subscribe"
+		// UnsubscribeEvent 取消订阅事件
+		UnsubscribeEvent = "unsubscribe"
+		// TEMPLATESENDJOBFINISHEvent 模版发送事件
+		TEMPLATESENDJOBFINISHEvent = "TEMPLATESENDJOBFINISH"
+	)
 	switch reqBody.Event {
-	case consts.SubscribeEvent: // 关注订阅
+	case SubscribeEvent: // 关注订阅
 		if respContent, err = a.handlerSubscribeEvent(ctx, reqBody); err != nil {
 			return nil, err
 		}
-	case consts.UnsubscribeEvent: // 取消关注订阅
+	case UnsubscribeEvent: // 取消关注订阅
 		if respContent, err = a.handlerUnSubscribeEvent(ctx, reqBody); err != nil {
 			return nil, err
 		}
-	case consts.TEMPLATESENDJOBFINISHEvent: // 事件回调内部系统错误重发
+	case TEMPLATESENDJOBFINISHEvent: // 事件回调内部系统错误重发
 		if respContent, err = a.handlerTEMPLATESENDJOBFINISHEvent(ctx, reqBody); err != nil {
 			return nil, err
 		}
@@ -158,7 +194,7 @@ func (a *WXRepository) handlerSubscribeEvent(ctx context.Context, reqBody *entit
 	if err != nil {
 		log.Errorf("handlerSubscribeEvent WXRepository wx repo set msg id to redis failed,traceID:%s,err:%+v", traceID, err)
 	}
-	return fmt.Sprintf("%s%s%s%s", consts.SubscribeRespContent, `<a href="`, fmt.Sprintf("%s%s%s", config.VerifyProfileURL, "#", reqBody.FromUserName), `">绑定</a>`), nil
+	return fmt.Sprintf("%s%s%s%s", SubscribeRespContent, `<a href="`, fmt.Sprintf("%s%s%s", config.Get().VerifySvc.Addr, "#", reqBody.FromUserName), `">绑定</a>`), nil
 }
 
 func (a *WXRepository) handlerUnSubscribeEvent(ctx context.Context, reqBody *entity.TextRequestBody) (string, error) {
@@ -187,7 +223,7 @@ func (a *WXRepository) handlerUnSubscribeEvent(ctx context.Context, reqBody *ent
 	if err != nil {
 		log.Errorf("handlerUnSubscribeEvent WXRepository wx repo set msg id to redis failed,traceID:%s,err:%+v", traceID, err)
 	}
-	return consts.UnSubscribeRespContent, nil
+	return UnSubscribeRespContent, nil
 }
 
 func (a *WXRepository) handlerTEMPLATESENDJOBFINISHEvent(ctx context.Context, reqBody *entity.TextRequestBody) (string, error) {
@@ -207,63 +243,63 @@ func (a *WXRepository) handlerTEMPLATESENDJOBFINISHEvent(ctx context.Context, re
 	msg, err := a.msg.GetMsgLogByMsgID(ctx, reqBody.MsgID)
 	if err != nil {
 		log.Errorf("handlerTEMPLATESENDJOBFINISHEvent GetMsgLogByMsgID failed,traceID:%s,err:%+v", traceID, err)
-		return consts.TEMPLATESENDJOBFINISHRespContent, err
+		return TEMPLATESENDJOBFINISHRespContent, err
 	}
-	if reqBody.Status == consts.TemplateSendSuccessStatus { // 发送成功，改状态
+	if reqBody.Status == TemplateSendSuccessStatus { // 发送成功，改状态
 		updateItem := entity.MsgLog{
 			ID:         msg.ID,
-			Status:     consts.SendSuccess,
-			Cause:      consts.TemplateSendSuccessStatus,
+			Status:     new(vo.MsgStatus).GetSuccess(),
+			Cause:      TemplateSendSuccessStatus,
 			UpdateTime: reqBody.CreateTime,
 		}
 		err = a.msg.UpdateMsgLog(ctx, updateItem)
 		if err != nil {
 			log.Errorf("handlerTEMPLATESENDJOBFINISHEvent UpdateMsgLog TemplateSendSuccessStatus failed,traceID:%s,err:%+v", traceID, err)
-			return consts.TEMPLATESENDJOBFINISHRespContent, err
+			return TEMPLATESENDJOBFINISHRespContent, err
 		}
-	} else if reqBody.Status == consts.TemplateSendUserBlockStatus { // 发送失败，用户拒接
+	} else if reqBody.Status == TemplateSendUserBlockStatus { // 发送失败，用户拒接
 		updateItem := entity.MsgLog{
 			ID:         msg.ID,
-			Status:     consts.SendFailure,
-			Cause:      consts.TemplateSendUserBlockStatus,
+			Status:     new(vo.MsgStatus).GetFailure(),
+			Cause:      TemplateSendUserBlockStatus,
 			UpdateTime: reqBody.CreateTime,
 		}
 		err = a.msg.UpdateMsgLog(ctx, updateItem)
 		if err != nil {
 			log.Errorf("handlerTEMPLATESENDJOBFINISHEvent UpdateMsgLog TemplateSendUserBlockStatus failed,traceID:%s,err:%+v", traceID, err)
-			return consts.TEMPLATESENDJOBFINISHRespContent, err
+			return TEMPLATESENDJOBFINISHRespContent, err
 		}
-	} else if reqBody.Status == consts.TemplateSendFailedStatus { // 发送失败，内部错误，重发，改变发送状态为0，重试次数+1
-		if msg.Count < consts.MaxRetryCount {
+	} else if reqBody.Status == TemplateSendFailedStatus { // 发送失败，内部错误，重发，改变发送状态为0，重试次数+1
+		if msg.Count < config.MaxRetryCount {
 			// 更新发送状态
 			updateItem := entity.MsgLog{
 				ID:         msg.ID,
-				Cause:      consts.TemplateSendFailedStatus,
-				Status:     consts.SendPending,
+				Cause:      TemplateSendFailedStatus,
+				Status:     new(vo.MsgStatus).GetPending(),
 				Count:      msg.Count + 1,
 				UpdateTime: reqBody.CreateTime,
 			}
 			err = a.msg.UpdateMsgLogSendStatus(ctx, updateItem)
 			if err != nil {
 				log.Errorf("handlerTEMPLATESENDJOBFINISHEvent UpdateMsgLogSendStatus TemplateSendFailedStatus failed,item:%+v,traceID:%s,err:%+v", updateItem, traceID, err)
-				return consts.TEMPLATESENDJOBFINISHRespContent, err
+				return TEMPLATESENDJOBFINISHRespContent, err
 			}
 		} else {
 			// 改变发送状态为失败
 			updateItem := entity.MsgLog{
 				ID:         msg.ID,
-				Cause:      consts.TemplateSendFailedStatus,
-				Status:     consts.SendFailure,
+				Cause:      TemplateSendFailedStatus,
+				Status:     new(vo.MsgStatus).GetFailure(),
 				UpdateTime: reqBody.CreateTime,
 			}
 			err = a.msg.UpdateMsgLog(ctx, updateItem)
 			if err != nil {
 				log.Errorf("handlerTEMPLATESENDJOBFINISHEvent UpdateMsgLog send status TemplateSendFailedStatus failed,traceID:%s,err:%+v", traceID, err)
-				return consts.TEMPLATESENDJOBFINISHRespContent, err
+				return TEMPLATESENDJOBFINISHRespContent, err
 			}
 		}
 	}
-	return consts.TEMPLATESENDJOBFINISHRespContent, nil
+	return TEMPLATESENDJOBFINISHRespContent, nil
 }
 
 func (a *WXRepository) isExistUserMsgID(ctx context.Context, msgID string, fromUserName string, createTime int64) (bool, error) {

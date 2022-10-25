@@ -10,7 +10,6 @@ import (
 	"github.com/hololee2cn/pkg/extra"
 	"github.com/hololee2cn/wxpub/v1/src/pkg/httpx"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/g"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
@@ -54,10 +53,8 @@ EXIT:
 }
 
 func initialize(ctx context.Context) (func(), error) {
-	// init config
-	config.Init()
 	// init log
-	extra.Default(config.LogLevel)
+	extra.Default(config.Get().LogSvc.LogLevel)
 	// init service
 	cleanFunc, err := InitService()
 	if err != nil {
@@ -67,7 +64,7 @@ func initialize(ctx context.Context) (func(), error) {
 	tasks.CronTasks(ctx)
 
 	engine := router.New()
-	httpClean := httpx.Init(config.ListenAddr, engine)
+	httpClean := httpx.Init(config.Get().HttpServer.ListenAddr, engine)
 	go g.Wait()
 	return func() {
 		cleanFunc()
@@ -77,20 +74,20 @@ func initialize(ctx context.Context) (func(), error) {
 
 func InitService() (func(), error) {
 	dbConf := persistence.DBCfg{
-		DBUser:      config.DBUser,
-		DBPassword:  config.DBPassword,
-		DBHost:      config.DBHost,
-		DBName:      config.DBName,
-		MaxIdleConn: config.DBMaxIdleConn,
-		MaxOpenConn: config.DBMaxOpenConn,
-		DebugMode:   config.SMode == consts.ServerModeDebug,
+		DBUser:      config.Get().MySQL.DBUser,
+		DBPassword:  config.Get().MySQL.DBPassword,
+		DBHost:      config.Get().MySQL.DBHost,
+		DBName:      config.Get().MySQL.DBName,
+		MaxIdleConn: config.Get().MySQL.MaxIdleConn,
+		MaxOpenConn: config.Get().MySQL.MaxOpenConn,
+		DebugMode:   config.Get().HttpServer.SMode == config.ServerModeDebug,
 	}
 	var err error
 	cleanFunc, err := persistence.NewRepositories(
 		persistence.NewDBRepositories(dbConf),
-		persistence.NewRedisRepositories(persistence.RedisCfg{RedisAddr: config.RedisAddresses}),
-		persistence.NewCaptchaGRPCClientRepositories(persistence.CaptchaCfg{CaptchaRPCAddr: config.CaptchaRPCAddr}),
-		persistence.NewSmsGRPCClientRepositories(persistence.SmsCfg{SmsRPCAddr: config.SmsRPCAddr}),
+		persistence.NewRedisRepositories(persistence.RedisCfg{RedisAddr: config.Get().Redis.ClusterAddr}),
+		persistence.NewCaptchaGRPCClientRepositories(persistence.CaptchaCfg{CaptchaRPCAddr: config.Get().CaptchaSvc.RPCAddr}),
+		persistence.NewSmsGRPCClientRepositories(persistence.SmsCfg{SmsRPCAddr: config.Get().SmsSvc.RPCAddr}),
 	)
 	if err != nil {
 		return nil, err

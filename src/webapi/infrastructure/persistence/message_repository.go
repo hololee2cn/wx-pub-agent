@@ -8,11 +8,12 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/vo"
+
 	"github.com/hololee2cn/pkg/errorx"
 	"github.com/hololee2cn/pkg/ginx"
 	"github.com/hololee2cn/wxpub/v1/src/pkg/httputil"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -21,6 +22,11 @@ import (
 type MessageRepo struct {
 	DB *gorm.DB
 }
+
+const (
+	SendMaxExpireFailureCause = "超过最大重试时间，请人工确认该消息!"
+	SendMaxRetryFailureCause  = "超过最大重试次数，请人工确认该消息!"
+)
 
 var defaultMessageRepo *MessageRepo
 
@@ -45,7 +51,7 @@ func (a *MessageRepo) SendTmplMsgFromRequest(ctx context.Context, param entity.S
 		log.Errorf("SendTmplMsgFromRequest json marshal send msg req failed,traceID:%s,err:%+v", traceID, err)
 		return entity.SendTmplMsgRemoteResp{}, err
 	}
-	requestProperty := httputil.GetRequestProperty(http.MethodPost, config.WXMsgTmplSendURL+fmt.Sprintf("?access_token=%s", param.AccessToken),
+	requestProperty := httputil.GetRequestProperty(http.MethodPost, config.Get().WxSvc.MsgTmplSendURL+fmt.Sprintf("?access_token=%s", param.AccessToken),
 		bs, make(map[string]string))
 	statusCode, body, _, err := httputil.RequestWithContextAndRepeat(ctx, requestProperty, traceID)
 	if err != nil {
@@ -151,7 +157,7 @@ func (a *MessageRepo) ListPendingMsgLogs(ctx context.Context) ([]entity.MsgLog, 
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("GetPendingMsgLog traceID:%s", traceID)
 	var msgLogs []entity.MsgLog
-	err := a.DB.Where("status = ? AND count < ?", consts.SendPending, consts.MaxRetryCount).Find(&msgLogs).Error
+	err := a.DB.Where("status = ? AND count < ?", new(vo.MsgStatus).GetPending(), config.MaxRetryCount).Find(&msgLogs).Error
 	if err != nil {
 		log.Errorf("GetListPendingMsgLogs get list pending msg logs failed,traceID:%s,err:%+v", traceID, err)
 		return nil, err
@@ -162,10 +168,10 @@ func (a *MessageRepo) ListPendingMsgLogs(ctx context.Context) ([]entity.MsgLog, 
 func (a *MessageRepo) UpdateMaxRetryCntMsgLogsStatus(ctx context.Context) error {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("UpdateMaxRetryCntMsgLogsStatus traceID:%s", traceID)
-	err := a.DB.Model(&entity.MsgLog{}).Where("status = ? AND count >= ?", consts.SendPending, consts.MaxRetryCount).Updates(map[string]interface{}{
-		"cause":  consts.SendMaxRetryFailureCause,
-		"status": consts.SendFailure,
-	}).Limit(consts.MaxHandleMsgCount).Error
+	err := a.DB.Model(&entity.MsgLog{}).Where("status = ? AND count >= ?", new(vo.MsgStatus).GetPending(), config.MaxRetryCount).Updates(map[string]interface{}{
+		"cause":  SendMaxRetryFailureCause,
+		"status": new(vo.MsgStatus).GetFailure(),
+	}).Limit(config.MaxHandleMsgCount).Error
 	if err != nil {
 		log.Errorf("UpdateMaxRetryCntMsgLogsStatus update max retry msg logs failed,traceID:%s,err:%+v", traceID, err)
 		return err
@@ -176,11 +182,11 @@ func (a *MessageRepo) UpdateMaxRetryCntMsgLogsStatus(ctx context.Context) error 
 func (a *MessageRepo) UpdateTimeoutMsgLogsStatus(ctx context.Context) error {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("UpdateTimeoutMsgLogsStatus traceID:%s", traceID)
-	err := a.DB.Model(&entity.MsgLog{}).Where("status = ? AND count >= ? AND create_time <= ?", consts.Sending, consts.MaxRetryCount, time.Now().Unix()-consts.MaxWXCallBackTime).
+	err := a.DB.Model(&entity.MsgLog{}).Where("status = ? AND count >= ? AND create_time <= ?", new(vo.MsgStatus).GetSending(), config.MaxRetryCount, time.Now().Unix()-config.MaxWXCallBackTime).
 		Updates(map[string]interface{}{
-			"cause":  consts.SendMaxExpireFailureCause,
-			"status": consts.SendFailure,
-		}).Limit(consts.MaxHandleMsgCount).Error
+			"cause":  SendMaxExpireFailureCause,
+			"status": new(vo.MsgStatus).GetFailure(),
+		}).Limit(config.MaxHandleMsgCount).Error
 	if err != nil {
 		log.Errorf("UpdateTimeoutMsgLogsStatus update time out msg log failed,traceID:%s,err:%+v", traceID, err)
 		return err

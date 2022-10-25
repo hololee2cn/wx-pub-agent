@@ -30,9 +30,9 @@ func registerController() {
 }
 
 func New() *gin.Engine {
-	gin.SetMode(string(config.SMode))
+	gin.SetMode(string(config.Get().HttpServer.SMode))
 
-	if strings.ToLower(string(config.SMode)) == gin.ReleaseMode {
+	if strings.ToLower(string(config.Get().HttpServer.SMode)) == gin.ReleaseMode {
 		ginx.DisableConsoleColor()
 	}
 	registerController()

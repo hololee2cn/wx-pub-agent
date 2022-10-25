@@ -5,8 +5,9 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
+
 	"github.com/hololee2cn/wxpub/v1/src/pkg/redis"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/g"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 	log "github.com/sirupsen/logrus"
@@ -14,7 +15,7 @@ import (
 
 const (
 	MsgInterval     = 10
-	TmplInterval    = consts.RedisTmplTTL - consts.DefaultHTTPTimeOut
+	TmplInterval    = config.RedisTmplTTL - config.DefaultHTTPTimeOut
 	FailMsgInterval = 1
 )
 
@@ -43,7 +44,7 @@ func AddJob(ctx context.Context, interval time.Duration, runner func(ctx context
 			}
 		}()
 		// redis lock for process to avoid racing from redis
-		rLock := redis.NewRLock(*persistence.DefaultAkRepo().Redis, consts.RedisLockTask)
+		rLock := redis.NewRLock(*persistence.DefaultAkRepo().Redis, config.RedisLockTask)
 		// init redis lock time 2 seconds
 		rLock.SetExpire(2)
 		var ok bool
