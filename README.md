@@ -1,4 +1,7 @@
 # Wx-pub-agent
+
+[![Code Coverage](https://img.shields.io/codecov/c/github/hololee2cn/wx-pub-agent/master.svg?style=flat-square)](https://app.codecov.io/gh/hololee2cn/wx-pub-agent/)
+
 中文 | [English](https://github.com/hololee2cn/wxpub/blob/master/doc/README_EN.md)
 
 ## 介绍
