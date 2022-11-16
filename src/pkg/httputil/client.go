@@ -78,6 +78,8 @@ func request(ctx context.Context, client *http.Client, req RequestProperty) (int
 	for i := 0; i < 3; i++ {
 		resp, err = client.Do(request)
 		if err != nil {
+			// reset Request.Body
+			request.Body = ioutil.NopCloser(bytes.NewReader(payload))
 			time.Sleep(time.Millisecond * 10)
 			continue
 		}

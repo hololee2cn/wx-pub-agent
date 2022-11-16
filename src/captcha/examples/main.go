@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/consts"
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/config"
 	"google.golang.org/grpc/credentials/insecure"
 
 	pb "github.com/hololee2cn/wxpub/v1/src/captcha/pkg/grpcIFace"
@@ -39,7 +39,7 @@ func main() {
 }
 
 func init() {
-	conn, err := grpc.Dial(consts.RPCAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(config.RPCAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		panic(err)
 	}

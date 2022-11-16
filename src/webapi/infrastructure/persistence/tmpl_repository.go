@@ -9,7 +9,6 @@ import (
 
 	"github.com/go-redis/redis/v7"
 	redis2 "github.com/hololee2cn/wxpub/v1/src/pkg/redis"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 
 	"github.com/hololee2cn/pkg/ginx"
 	"github.com/hololee2cn/wxpub/v1/src/pkg/httputil"
@@ -39,7 +38,7 @@ func DefaultTmplRepo() *TmplRepo {
 func (t *TmplRepo) ListTmplFromRequest(ctx context.Context, ak string) (entity.TemplateList, error) {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("ListTmplFromRequest traceID:%s", traceID)
-	requestProperty := httputil.GetRequestProperty(http.MethodPost, config.WXListTmplURL+fmt.Sprintf("?access_token=%s", ak),
+	requestProperty := httputil.GetRequestProperty(http.MethodPost, config.Get().WxSvc.ListTmplURL+fmt.Sprintf("?access_token=%s", ak),
 		nil, make(map[string]string))
 	statusCode, body, _, err := httputil.RequestWithContextAndRepeat(ctx, requestProperty, traceID)
 	if err != nil {
@@ -69,7 +68,7 @@ func (t *TmplRepo) SetTmplsToRedis(ctx context.Context, val entity.ListTmplResp)
 		return err
 	}
 	for i := 0; i < 3; i++ {
-		err = redis2.RSet(consts.RedisKeyTmpl, bs, consts.RedisTmplTTL)
+		err = redis2.RSet(config.RedisKeyTmpl, bs, config.RedisTmplTTL)
 		if err != nil {
 			log.Errorf("SetTmplsToRedis TmplRepo redis set tmpls failed,traceID:%s,err:%+v", traceID, err)
 			time.Sleep(time.Millisecond * 10)
@@ -83,7 +82,7 @@ func (t *TmplRepo) SetTmplsToRedis(ctx context.Context, val entity.ListTmplResp)
 func (t *TmplRepo) GetTmplsForRedis(ctx context.Context) (entity.ListTmplResp, error) {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("GetTmplsForRedis traceID:%s", traceID)
-	bs, err := redis2.RGet(consts.RedisKeyTmpl)
+	bs, err := redis2.RGet(config.RedisKeyTmpl)
 	if err != nil {
 		log.Errorf("TmplRepository TmplRepo get tmpls for redis failed,err:+%v", err)
 		return entity.ListTmplResp{}, err

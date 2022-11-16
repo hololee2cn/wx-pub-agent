@@ -59,10 +59,10 @@ func (m *TemplateItem) TransferListTmplItem() *ListTmplItem {
 }
 
 func (f *FreshTemplateReq) Validate() (errMsg string) {
-	if f.AppID != config.AppID {
+	if f.AppID != config.Get().WxSvc.AppID {
 		errMsg = "appid is not right"
 	}
-	if f.AppSecret != config.AppSecret {
+	if f.AppSecret != config.Get().WxSvc.AppSecret {
 		errMsg = "app secret is not right"
 	}
 	return

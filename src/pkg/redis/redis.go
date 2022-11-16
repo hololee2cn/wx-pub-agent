@@ -19,7 +19,6 @@ func NewRedisClient(addresses []string) (func(), redis.UniversalClient) {
 	if err != nil {
 		panic(err)
 	}
-	log.Info("redis client init success")
 	return func() {
 		_ = RClient.Close()
 	}, RClient

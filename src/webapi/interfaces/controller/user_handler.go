@@ -8,7 +8,6 @@ import (
 	"github.com/hololee2cn/pkg/ginx"
 	"github.com/hololee2cn/wxpub/v1/src/utils"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/application"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	log "github.com/sirupsen/logrus"
 )
@@ -27,14 +26,17 @@ func (u *User) GenCaptcha(c *gin.Context) {
 	ctx := ginx.DefaultTodoContext(c)
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("%s", traceID)
-
-	width := ginx.QueryStr(c, "width", strconv.Itoa(consts.CaptchaDefaultWidth))
+	const (
+		CaptchaDefaultWidth  = 150
+		CaptchaDefaultHeight = 50
+	)
+	width := ginx.QueryStr(c, "width", strconv.Itoa(CaptchaDefaultWidth))
 	w, err := strconv.ParseInt(width, 10, 64)
 	if err != nil {
 		log.Errorf("%s get width failed,err: %+v", traceID, err)
 		ginx.BombErr(errorx.CodeInternalServerError, errorx.GetErrorMessage(errorx.CodeInternalServerError))
 	}
-	height := ginx.QueryStr(c, "height", strconv.Itoa(consts.CaptchaDefaultHeight))
+	height := ginx.QueryStr(c, "height", strconv.Itoa(CaptchaDefaultHeight))
 	h, err := strconv.ParseInt(height, 10, 64)
 	if err != nil {
 		log.Errorf("%s get height failed,err: %+v", traceID, err)

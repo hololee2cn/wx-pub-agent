@@ -4,10 +4,11 @@ import (
 	"context"
 	"time"
 
+	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
+
 	"github.com/go-redis/redis/v7"
 	"github.com/hololee2cn/pkg/ginx"
 	redis3 "github.com/hololee2cn/wxpub/v1/src/pkg/redis"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,7 +35,7 @@ func (a *WxRepo) SetMsgIDToRedis(ctx context.Context, msgID string) error {
 	log.Debugf("SetMsgIDToRedis traceID:%s", traceID)
 	var err error
 	for i := 0; i < 3; i++ {
-		err = redis3.RSet(consts.RedisKeyMsgID+msgID, "", consts.RedisMsgIDTTL)
+		err = redis3.RSet(config.RedisKeyPrefixMsgID+msgID, "", config.RedisMsgIDTTL)
 		if err != nil {
 			log.Errorf("SetMsgIDToRedis WxRepo redis set msg id failed,traceID:%s,err:%+v", traceID, err)
 			continue
@@ -49,7 +50,7 @@ func (a *WxRepo) IsExistMsgIDFromRedis(ctx context.Context, msgID string) (bool,
 	log.Debugf("IsExistMsgIDFromRedis traceID:%s", traceID)
 	var err error
 	for i := 0; i < 3; i++ {
-		_, err = redis3.RGet(consts.RedisKeyMsgID + msgID)
+		_, err = redis3.RGet(config.RedisKeyPrefixMsgID + msgID)
 		if err != nil {
 			if err == redis.Nil {
 				return false, nil

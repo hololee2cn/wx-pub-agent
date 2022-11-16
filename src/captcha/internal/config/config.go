@@ -16,12 +16,8 @@ import (
 var mutex = &sync.RWMutex{}
 var configMap = make(map[string]string)
 
-func init() {
-	Init()
-}
-
-// Init 显式Init是为了可能有需要重读配置的情况
-func Init() {
+// InitC 显式Init是为了可能有需要重读配置的情况
+func InitC() {
 	var err error
 	configMap, err = parseFromINI()
 	if err == nil {

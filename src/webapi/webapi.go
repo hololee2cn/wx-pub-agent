@@ -10,7 +10,6 @@ import (
 	"github.com/hololee2cn/pkg/extra"
 	"github.com/hololee2cn/wxpub/v1/src/pkg/httpx"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/g"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
@@ -54,10 +53,8 @@ EXIT:
 }
 
 func initialize(ctx context.Context) (func(), error) {
-	// init config
-	config.Init()
 	// init log
-	extra.Default(config.LogLevel)
+	extra.Default(config.Get().LogSvc.LogLevel)
 	// init service
 	cleanFunc, err := InitService()
 	if err != nil {
@@ -67,7 +64,7 @@ func initialize(ctx context.Context) (func(), error) {
 	tasks.CronTasks(ctx)
 
 	engine := router.New()
-	httpClean := httpx.Init(config.ListenAddr, engine)
+	httpClean := httpx.Init(config.Get().HttpServer.ListenAddr, engine)
 	go g.Wait()
 	return func() {
 		cleanFunc()
@@ -76,29 +73,30 @@ func initialize(ctx context.Context) (func(), error) {
 }
 
 func InitService() (func(), error) {
-	debugMode := config.SMode == consts.ServerModeDebug
-	dbConf := persistence.DBConfig{
-		DBUser:      config.DBUser,
-		DBPassword:  config.DBPassword,
-		DBHost:      config.DBHost,
-		DBName:      config.DBName,
-		MaxIdleConn: config.DBMaxIdleConn,
-		MaxOpenConn: config.DBMaxOpenConn,
+	dbConf := persistence.DBCfg{
+		DBUser:      config.Get().MySQL.DBUser,
+		DBPassword:  config.Get().MySQL.DBPassword,
+		DBHost:      config.Get().MySQL.DBHost,
+		DBName:      config.Get().MySQL.DBName,
+		MaxIdleConn: config.Get().MySQL.MaxIdleConn,
+		MaxOpenConn: config.Get().MySQL.MaxOpenConn,
+		DebugMode:   config.Get().HttpServer.SMode == config.ServerModeDebug,
 	}
-	cleanFunc, err := persistence.NewRepositories(dbConf, config.RedisAddresses, config.SmsRPCAddr, config.CaptchaRPCAddr, debugMode)
+	var err error
+	cleanFunc, err := persistence.NewRepositories(
+		persistence.NewDBRepositories(dbConf),
+		persistence.NewRedisRepositories(persistence.RedisCfg{RedisAddr: config.Get().Redis.ClusterAddr}),
+		persistence.NewCaptchaGRPCClientRepositories(persistence.CaptchaCfg{CaptchaRPCAddr: config.Get().CaptchaSvc.RPCAddr}),
+		persistence.NewSmsGRPCClientRepositories(persistence.SmsCfg{SmsRPCAddr: config.Get().SmsSvc.RPCAddr}),
+	)
 	if err != nil {
 		return nil, err
 	}
+	// persistence repo init
+	persistence.NewSingletonRepo()
+
 	// repository init
-	repository.NewWXRepository(
-		persistence.DefaultWxRepo(), persistence.DefaultUserRepo(), persistence.DefaultMessageRepo())
-	repository.NewAccessTokenRepository(
-		persistence.DefaultAkRepo())
-	repository.NewUserRepository(
-		persistence.DefaultUserRepo(), persistence.DefaultPhoneVerifyRepo())
-	repository.NewMessageRepository(
-		persistence.DefaultMessageRepo(), persistence.DefaultUserRepo())
-	repository.NewTmplRepository(
-		persistence.DefaultTmplRepo())
+	repository.NewSingletonRepository()
+
 	return cleanFunc, nil
 }

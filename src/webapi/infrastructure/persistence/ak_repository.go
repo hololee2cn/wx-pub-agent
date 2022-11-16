@@ -13,7 +13,6 @@ import (
 	"github.com/hololee2cn/wxpub/v1/src/pkg/httputil"
 	redis3 "github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	log "github.com/sirupsen/logrus"
 )
@@ -40,7 +39,8 @@ func (a *AkRepo) GetAccessTokenFromRequest(ctx context.Context) (entity.AccessTo
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("getAccessTokenFromRequest traceID:%s", traceID)
 	// 请求wx access token
-	requestProperty := httputil.GetRequestProperty(http.MethodGet, config.WXAccessTokenURL+fmt.Sprintf("?grant_type=%s&appid=%s&secret=%s", consts.Credential, config.AppID, config.AppSecret),
+	const Credential = "client_credential"
+	requestProperty := httputil.GetRequestProperty(http.MethodGet, config.Get().WxSvc.AccessTokenURL+fmt.Sprintf("?grant_type=%s&appid=%s&secret=%s", Credential, config.Get().WxSvc.AppID, config.Get().WxSvc.AppSecret),
 		nil, make(map[string]string))
 	statusCode, body, _, err := httputil.RequestWithContextAndRepeat(ctx, requestProperty, traceID)
 	if err != nil {
@@ -72,7 +72,7 @@ func (a *AkRepo) GetAccessTokenFromRedis(ctx context.Context) (string, error) {
 	var oldAk []byte
 	var err error
 	for i := 0; i < 3; i++ {
-		oldAk, err = redis3.RGet(consts.RedisKeyAccessToken)
+		oldAk, err = redis3.RGet(config.RedisKeyAccessToken)
 		if err != nil && err != redis.Nil {
 			time.Sleep(10 * time.Millisecond)
 			continue
@@ -89,7 +89,7 @@ func (a *AkRepo) GetAccessTokenFromRedis(ctx context.Context) (string, error) {
 func (a *AkRepo) SetAccessTokenToRedis(ctx context.Context, accessToken string, expiresIn int) error {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("SetAccessTokenToRedis traceID:%s", traceID)
-	err := redis3.RSet(consts.RedisKeyAccessToken, accessToken, expiresIn)
+	err := redis3.RSet(config.RedisKeyAccessToken, accessToken, expiresIn)
 	if err != nil {
 		log.Errorf("SetAccessTokenToRedis AkRepo redis set new ak failed,traceID:%s,err:%+v", traceID, err)
 		return err

@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/hololee2cn/wxpub/v1/src/webapi/config"
+
 	"github.com/google/uuid"
 	captchaPb "github.com/hololee2cn/captcha/pkg/grpcIFace"
 	"github.com/hololee2cn/pkg/ginx"
 	smsPb "github.com/hololee2cn/sms-xuanwu/pkg/grpcIFace"
 	redis2 "github.com/hololee2cn/wxpub/v1/src/pkg/redis"
 	"github.com/hololee2cn/wxpub/v1/src/utils"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	log "github.com/sirupsen/logrus"
 )
@@ -110,7 +111,7 @@ func (r *PhoneVerifyRepo) SetVerifyCodeSmsStorage(ctx context.Context, challenge
 
 	smsRedisValue, _ := json.Marshal(verifyCodeSmsRedisValue)
 	// redis存放open_id+phone:{verifyCodeAnswer,smsCreateTime}，过期时间为30分钟
-	err = redis2.RSet(consts.RedisKeyPrefixChallenge+challenge, smsRedisValue, consts.VerifyCodeSmsChallengeTTL)
+	err = redis2.RSet(config.RedisKeyPrefixChallenge+challenge, smsRedisValue, config.VerifyCodeSmsChallengeTTL)
 	if err != nil {
 		log.Errorf("failed to do redis Set, error: %+v, traceID: %s", err, traceID)
 		return
@@ -126,7 +127,7 @@ func (r *PhoneVerifyRepo) VerifySmsCode(ctx context.Context, challenge, verifyCo
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("VerifySmsCode traceID:%s", traceID)
 
-	value, err = redis2.RGet(consts.RedisKeyPrefixChallenge + challenge)
+	value, err = redis2.RGet(config.RedisKeyPrefixChallenge + challenge)
 	if err != nil {
 		log.Errorf("failed to do redis HGet, error: %+v, traceID: %s", err, traceID)
 		return

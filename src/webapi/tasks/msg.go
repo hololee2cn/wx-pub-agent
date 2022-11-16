@@ -3,8 +3,9 @@ package tasks
 import (
 	"context"
 
+	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/vo"
+
 	"github.com/hololee2cn/pkg/errorx"
-	"github.com/hololee2cn/wxpub/v1/src/webapi/consts"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/entity"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/domain/repository"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/g"
@@ -93,7 +94,7 @@ func handlePerMsg(ctx context.Context, msgLog entity.MsgLog) {
 	}
 	// 记录当前消息发送状态为发送中等待回调状态确认
 	msgLog.MsgID = resp.MsgID
-	msgLog.Status = consts.Sending
+	msgLog.Status = new(vo.MsgStatus).GetSending()
 	msgLog.Count++
 	err = msgRepo.UpdateMsgLog(ctx, msgLog)
 	if err != nil {

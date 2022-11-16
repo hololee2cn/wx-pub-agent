@@ -4,21 +4,27 @@ import (
 	"context"
 	"testing"
 
-	"bou.ke/monkey"
+	monkey "github.com/agiledragon/gomonkey/v2"
 	"github.com/hololee2cn/wxpub/v1/src/webapi/infrastructure/persistence"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAccessTokenRepository_GetAccessToken(t *testing.T) {
+	var (
+		s             *persistence.AkRepo
+		ak            *AccessTokenRepository
+		defaultAkRepo *persistence.AkRepo
+	)
+	defaultAkRepo = new(persistence.AkRepo)
+	defaultAkRepo.Redis = nil
+	NewAccessTokenRepository(defaultAkRepo)
+	a := DefaultAccessTokenRepository()
 	Convey("Test AccessTokenRepository_GetAccessToken", t, func() {
 		Convey("case1 get ak from redis", func() {
-			persistence.NewAkRepo()
-			NewAccessTokenRepository(persistence.DefaultAkRepo())
-			a := DefaultAccessTokenRepository()
-			monkey.Patch((*persistence.AkRepo).GetAccessTokenFromRedis, func(_ *persistence.AkRepo, ctx context.Context) (string, error) {
+			patches := monkey.ApplyMethodFunc(s, "GetAccessTokenFromRedis", func(_ context.Context) (string, error) {
 				return "test", nil
 			})
-			defer monkey.Unpatch((*persistence.AkRepo).GetAccessTokenFromRedis)
+			defer patches.Reset()
 			mockCtx := context.Background()
 			actualResp, err := a.GetAccessToken(mockCtx)
 			expectedResp := "test"
@@ -26,17 +32,14 @@ func TestAccessTokenRepository_GetAccessToken(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 		Convey("case2 get ak from remote api", func() {
-			persistence.NewAkRepo()
-			NewAccessTokenRepository(persistence.DefaultAkRepo())
-			a := DefaultAccessTokenRepository()
-			monkey.Patch((*persistence.AkRepo).GetAccessTokenFromRedis, func(_ *persistence.AkRepo, ctx context.Context) (string, error) {
+			patches := monkey.ApplyMethodFunc(s, "GetAccessTokenFromRedis", func(ctx context.Context) (string, error) {
 				return "", nil
 			})
-			defer monkey.Unpatch((*persistence.AkRepo).GetAccessTokenFromRedis)
-			monkey.Patch((*AccessTokenRepository).FreshAccessToken, func(_ *AccessTokenRepository, ctx context.Context) (string, error) {
+			defer patches.Reset()
+			patches = monkey.ApplyMethodFunc(ak, "FreshAccessToken", func(ctx context.Context) (string, error) {
 				return "test", nil
 			})
-			defer monkey.Unpatch((*AccessTokenRepository).FreshAccessToken)
+			defer patches.Reset()
 			mockCtx := context.Background()
 			actualResp, err := a.GetAccessToken(mockCtx)
 			expectedResp := "test"

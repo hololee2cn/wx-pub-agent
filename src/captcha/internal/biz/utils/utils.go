@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/biz/model"
-	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/consts"
+	"github.com/hololee2cn/wxpub/v1/src/captcha/internal/config"
 
 	"github.com/mojocn/base64Captcha"
 )
@@ -48,10 +48,10 @@ func StrToRGBA(s string) (rgba color.RGBA, err error) {
 
 // captcha redis set key
 func FullID(id string) string {
-	if strings.HasPrefix(id, consts.Module) {
+	if strings.HasPrefix(id, config.Module) {
 		return id
 	}
-	return consts.Module + "-" + id
+	return config.Module + "-" + id
 }
 
 // 通过传入参数构建统一的 captcha driver
@@ -61,40 +61,40 @@ func UnifyCaptchaDriver(opts *model.CaptchaCommonOpts) (driver base64Captcha.Dri
 		return
 	}
 	if opts.Type == "" {
-		opts.Type = consts.CaptchaTypeString
+		opts.Type = config.CaptchaTypeString
 	}
 
 	// 统一设置默认值
 	// 虽然有的选项不是通用的, 如: AudioDefaultLanguage, 统一设置也无妨
 	if opts.Width <= 0 {
-		opts.Width = consts.CaptchaDefaultWidth
+		opts.Width = config.CaptchaDefaultWidth
 	}
 	if opts.Height <= 0 {
-		opts.Height = consts.CaptchaDefaultHeight
+		opts.Height = config.CaptchaDefaultHeight
 	}
 	if opts.Length <= 0 {
-		opts.Length = consts.CaptchaDefaultLength
+		opts.Length = config.CaptchaDefaultLength
 	}
 	if opts.AudioLanguage == "" {
-		opts.AudioLanguage = consts.AudioDefaultLanguage
+		opts.AudioLanguage = config.AudioDefaultLanguage
 	}
 	if opts.MaxAge <= 0 {
-		opts.MaxAge = consts.CaptchaDefaultMaxAge
+		opts.MaxAge = config.CaptchaDefaultMaxAge
 	}
 	if opts.NoiseCount <= 0 {
-		opts.NoiseCount = consts.CaptchaDefaultNoiseCount
+		opts.NoiseCount = config.CaptchaDefaultNoiseCount
 	}
 	if opts.ShowLineOptions <= 0 {
-		opts.ShowLineOptions = consts.OptionsShowAllLines
+		opts.ShowLineOptions = config.OptionsShowAllLines
 	}
 
 	switch opts.Type {
-	case consts.CaptchaTypeAudio:
+	case config.CaptchaTypeAudio:
 		driver = &base64Captcha.DriverAudio{
 			Length:   opts.Length,
 			Language: opts.AudioLanguage,
 		}
-	case consts.CaptchaTypeDigit:
+	case config.CaptchaTypeDigit:
 		driver = &base64Captcha.DriverDigit{
 			Width:    opts.Width,
 			Height:   opts.Height,
@@ -102,16 +102,16 @@ func UnifyCaptchaDriver(opts *model.CaptchaCommonOpts) (driver base64Captcha.Dri
 			MaxSkew:  opts.DigitMaxSkew,
 			DotCount: opts.DigitDotCount,
 		}
-	case consts.CaptchaTypeMath:
+	case config.CaptchaTypeMath:
 		driver = (&base64Captcha.DriverMath{
 			Width:           opts.Width,
 			Height:          opts.Height,
 			NoiseCount:      opts.NoiseCount,
 			ShowLineOptions: opts.ShowLineOptions,
 			BgColor:         opts.BgColor,
-			Fonts:           consts.DefaultFonts,
+			Fonts:           config.DefaultFonts,
 		}).ConvertFonts()
-	case consts.CaptchaTypeString:
+	case config.CaptchaTypeString:
 		driver = (&base64Captcha.DriverString{
 			Width:           opts.Width,
 			Height:          opts.Height,
@@ -119,10 +119,10 @@ func UnifyCaptchaDriver(opts *model.CaptchaCommonOpts) (driver base64Captcha.Dri
 			NoiseCount:      opts.NoiseCount,
 			ShowLineOptions: opts.ShowLineOptions,
 			BgColor:         opts.BgColor,
-			Source:          consts.TxtNumbersAndAlphabet,
-			Fonts:           consts.DefaultFonts,
+			Source:          config.TxtNumbersAndAlphabet,
+			Fonts:           config.DefaultFonts,
 		}).ConvertFonts()
-	case consts.CaptchaTypeChinese:
+	case config.CaptchaTypeChinese:
 		driver = (&base64Captcha.DriverString{
 			Width:           opts.Width,
 			Height:          opts.Height,
@@ -130,8 +130,8 @@ func UnifyCaptchaDriver(opts *model.CaptchaCommonOpts) (driver base64Captcha.Dri
 			NoiseCount:      opts.NoiseCount,
 			ShowLineOptions: opts.ShowLineOptions,
 			BgColor:         opts.BgColor,
-			Source:          consts.CommonlyUsedChinese,
-			Fonts:           consts.DefaultFonts,
+			Source:          config.CommonlyUsedChinese,
+			Fonts:           config.DefaultFonts,
 		}).ConvertFonts()
 	default:
 		err = fmt.Errorf("unsupported type: %s", opts.Type)
