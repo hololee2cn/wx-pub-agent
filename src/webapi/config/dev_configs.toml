@@ -1,5 +1,5 @@
 [mysql]
-    dbHost = "127.0.0.1:3306"
+    dbHost = "mysql:3306"
     dbUser = "root"
     dbPassword = "1234"
     dbName = "pub_platform_mgr"
@@ -24,7 +24,7 @@
     appSecret = ""
 
 [redis]
-    clusterAddr = "127.0.0.1:6379"
+    clusterAddr = "redis:6379"
 
 [verifySvc]
     addr = ""
