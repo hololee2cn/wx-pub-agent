@@ -40,7 +40,7 @@ func (a *AkRepo) GetAccessTokenFromRequest(ctx context.Context) (entity.AccessTo
 	log.Debugf("getAccessTokenFromRequest traceID:%s", traceID)
 	// 请求wx access token
 	const Credential = "client_credential"
-	requestProperty := httputil.GetRequestProperty(http.MethodGet, config.Get().WxSvc.AccessTokenURL+fmt.Sprintf("?grant_type=%s&appid=%s&secret=%s", Credential, config.Get().WxSvc.AppID, config.Get().WxSvc.AppSecret),
+	requestProperty := httputil.GetRequestProperty(http.MethodGet, fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/token?grant_type=%s&appid=%s&secret=%s", Credential, config.Get().WxSvc.AppID, config.Get().WxSvc.AppSecret),
 		nil, make(map[string]string))
 	statusCode, body, _, err := httputil.RequestWithContextAndRepeat(ctx, requestProperty, traceID)
 	if err != nil {

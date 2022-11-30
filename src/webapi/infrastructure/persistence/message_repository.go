@@ -51,7 +51,7 @@ func (a *MessageRepo) SendTmplMsgFromRequest(ctx context.Context, param entity.S
 		log.Errorf("SendTmplMsgFromRequest json marshal send msg req failed,traceID:%s,err:%+v", traceID, err)
 		return entity.SendTmplMsgRemoteResp{}, err
 	}
-	requestProperty := httputil.GetRequestProperty(http.MethodPost, config.Get().WxSvc.MsgTmplSendURL+fmt.Sprintf("?access_token=%s", param.AccessToken),
+	requestProperty := httputil.GetRequestProperty(http.MethodPost, fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/message/template/send?access_token=%s", param.AccessToken),
 		bs, make(map[string]string))
 	statusCode, body, _, err := httputil.RequestWithContextAndRepeat(ctx, requestProperty, traceID)
 	if err != nil {

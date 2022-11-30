@@ -62,12 +62,8 @@ type LogCfg struct {
 }
 
 type WxCfg struct {
-	AppID          string `toml:"appId"`
-	AppSecret      string `toml:"appSecret"`
-	BaseURL        string `toml:"baseUrl"`
-	AccessTokenURL string `toml:"accessTokenUrl"`
-	MsgTmplSendURL string `toml:"msgTmplSendUrl"`
-	ListTmplURL    string `toml:"listTmplUrl"`
+	AppID     string `toml:"appId"`
+	AppSecret string `toml:"appSecret"`
 }
 
 type RedisCfg struct {

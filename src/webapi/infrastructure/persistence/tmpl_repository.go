@@ -38,7 +38,7 @@ func DefaultTmplRepo() *TmplRepo {
 func (t *TmplRepo) ListTmplFromRequest(ctx context.Context, ak string) (entity.TemplateList, error) {
 	traceID := ginx.ShouldGetTraceID(ctx)
 	log.Debugf("ListTmplFromRequest traceID:%s", traceID)
-	requestProperty := httputil.GetRequestProperty(http.MethodPost, config.Get().WxSvc.ListTmplURL+fmt.Sprintf("?access_token=%s", ak),
+	requestProperty := httputil.GetRequestProperty(http.MethodPost, fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/template/get_all_private_template?access_token=%s", ak),
 		nil, make(map[string]string))
 	statusCode, body, _, err := httputil.RequestWithContextAndRepeat(ctx, requestProperty, traceID)
 	if err != nil {
